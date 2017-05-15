@@ -55,6 +55,10 @@ async function leadForTicket(key:string) {
         prevStatusStartTime = newStatusStartTime;
     });
 
+    const secondsInPreviousStatus = new Date().getTime() - prevStatusStartTime.getTime();
+    if (!timeInStatuses[prevStatus]) timeInStatuses[prevStatus] = 0;
+    timeInStatuses[prevStatus] += secondsInPreviousStatus;
+
     const pp = function (s){return timeInStatuses[s]||0};
     console.log(`${key},${pp('Idea')},${pp('Gathering Requirements')},${pp('Ready for development')},${pp('In Development')},${pp('To Approve')},${pp('In Approval')},${pp('Done')},${pp('Archived')},${pp('Invalid')}`);
 };
