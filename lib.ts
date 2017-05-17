@@ -7,13 +7,18 @@ const opts: request.RequestPromiseOptions = {
     auth: auth
 };
 
+// FIXME: this can be removed by just checking the first "from" value in the status.
 const INITIAL_STATUS = 'Idea';
 
-export async function timesInStatusesForTickets(key: string) {
+export interface TicketStatusTimes {
+    key: string,
+    times: {
+        [statusName: string]: number
+    }
+}
+
+export async function timesInStatusesForTickets(key: string): Promise<TicketStatusTimes> {
     const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, opts));
-    fs.writeFile('result.json', JSON.stringify(issueDetails), { encoding: 'utf-8' }, e => {
-        if (e) throw e;
-    });
 
     if (issueDetails.changelog.maxResults < issueDetails.changelog.total) {
         throw new Error(`${key} has more changelog events than what we can process with the current Jira API (Got ${issueDetails.changelog.maxResults} event(s), but it has ${issueDetails.changelog.total}`);
@@ -54,6 +59,8 @@ export async function timesInStatusesForTickets(key: string) {
     if (!timeInStatuses[prevStatus]) timeInStatuses[prevStatus] = 0;
     timeInStatuses[prevStatus] += secondsInPreviousStatus;
 
-    const pp = function (s) { return timeInStatuses[s] || 0 };
-    console.log(`${key},${pp('Idea')},${pp('Gathering Requirements')},${pp('Ready for development')},${pp('In Development')},${pp('To Approve')},${pp('In Approval')},${pp('Done')},${pp('Archived')},${pp('Invalid')}`);
+    return {
+        key: key,
+        times: timeInStatuses
+    }
 };
