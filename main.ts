@@ -1,4 +1,4 @@
-import { timesInStatusesForTicket, getKeysInJQL } from './lib';
+import { timesInStatusesForTicket, getKeysInJQL } from './lib/lib';
 import * as yargs from 'yargs';
 
 const argv = yargs.argv;

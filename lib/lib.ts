@@ -1,7 +1,7 @@
 import * as request from 'request-promise-native';
 import { Issue, Status, HistoryItem, IssueQueryResponse } from './interfaces';
 import fs = require('fs');
-const auth = require('./config.json');
+const auth = require('../config.json');
 
 const opts: request.RequestPromiseOptions = {
     auth: auth
