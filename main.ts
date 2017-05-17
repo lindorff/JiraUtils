@@ -1,8 +1,16 @@
-import { timesInStatusesForTickets } from './lib';
+import { timesInStatusesForTicket, getKeysInJQL } from './lib';
+import * as yargs from 'yargs';
 
-process.argv.shift();
-process.argv.shift();
-const keys = process.argv;
+const argv = yargs.argv;
+
+let keys:string[] = [];
+let query = null;
+
+if (argv.query) {
+    query = argv.query;
+} else {
+    keys = argv._;
+}
 
 const statuses = [
     'Idea',
@@ -22,14 +30,26 @@ function prettyPrint(values: { [key: string]: number }, statuses: string[]): str
         .join(',');
 }
 
-
-if (keys.length === 0) {
-    console.error('No keys given');
-    process.exit(1);
-} else {
+function prettyPrintAllTickets(keys:string[]) {
     console.log(`Key,${statuses.join(',')}`);
     keys.forEach(async key => {
-        const times = await timesInStatusesForTickets(key);
+        const times = await timesInStatusesForTicket(key);
         console.log(`${key},${prettyPrint(times.times, statuses)}`);
     });
+
 }
+
+(async()=>{
+    if (query) {
+        keys = await getKeysInJQL(query);
+    }
+
+    if (keys.length > 0) {
+        prettyPrintAllTickets(keys);
+    } 
+    
+    else {
+        console.error('give a query or ticket numbers');
+        process.exit(1);
+    }
+})();

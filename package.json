@@ -8,15 +8,14 @@
     "@types/node": "^7.0.18",
     "@types/request": "0.0.43",
     "@types/request-promise-native": "^1.0.5",
+    "@types/yargs": "^6.6.0",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4",
     "ts-node": "^3.0.4",
-    "typescript": "^2.3.2"
+    "typescript": "^2.3.2",
+    "yargs": "^8.0.1"
   },
   "devDependencies": {},
-  "scripts": {
-    "start": "node_modules/.bin/ts-node main.ts"
-  },
   "author": "Henrik Paul <henrik.paul@lindorff.com>",
   "license": "UNLICENSED"
 }

@@ -1,5 +1,5 @@
 import * as request from 'request-promise-native';
-import { Issue, Status, HistoryItem } from './interfaces';
+import { Issue, Status, HistoryItem, IssueQueryResponse } from './interfaces';
 import fs = require('fs');
 const auth = require('./config.json');
 
@@ -17,7 +17,7 @@ export interface TicketStatusTimes {
     }
 }
 
-export async function timesInStatusesForTickets(key: string): Promise<TicketStatusTimes> {
+export async function timesInStatusesForTicket(key: string): Promise<TicketStatusTimes> {
     const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, opts));
 
     if (issueDetails.changelog.maxResults < issueDetails.changelog.total) {
@@ -64,3 +64,24 @@ export async function timesInStatusesForTickets(key: string): Promise<TicketStat
         times: timeInStatuses
     }
 };
+
+export async function getKeysInJQL(jql: string): Promise<string[]> {
+    const issues: string[] = [];
+
+    let uri = `https://jira.lindorff.com/rest/api/2/search?jql=${jql}`;
+    let hasMorePages = false;
+    let startAt = 0;
+    console.log(`Fetching all results from URI ${uri}`);
+    do {
+        const result = <IssueQueryResponse>JSON.parse(await request(`${uri}&startAt=${startAt}`, opts));
+        console.log(`Got ${result.startAt}..${result.startAt+result.maxResults}/${result.total}`);
+
+        result.issues.forEach(issue => issues.push(issue.key));
+
+        hasMorePages = (result.startAt + result.maxResults) < (result.total);
+        startAt = result.startAt+result.maxResults;
+    } while (hasMorePages);
+    console.log('Done fetching');
+
+    return issues;
+}
