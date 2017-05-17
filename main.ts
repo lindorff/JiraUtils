@@ -3,7 +3,7 @@ import * as yargs from 'yargs';
 
 const argv = yargs.argv;
 
-let keys:string[] = [];
+let keys: string[] = [];
 let query = null;
 
 if (argv.query) {
@@ -30,7 +30,7 @@ function prettyPrint(values: { [key: string]: number }, statuses: string[]): str
         .join(',');
 }
 
-function prettyPrintAllTickets(keys:string[]) {
+function prettyPrintAllTickets(keys: string[]) {
     console.log(`Key,${statuses.join(',')}`);
     keys.forEach(async key => {
         const times = await timesInStatusesForTicket(key);
@@ -39,16 +39,14 @@ function prettyPrintAllTickets(keys:string[]) {
 
 }
 
-(async()=>{
+(async () => {
     if (query) {
         keys = await getKeysInJQL(query);
     }
 
     if (keys.length > 0) {
         prettyPrintAllTickets(keys);
-    } 
-    
-    else {
+    } else {
         console.error('give a query or ticket numbers');
         process.exit(1);
     }
