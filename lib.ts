@@ -10,8 +10,12 @@ const opts: request.RequestPromiseOptions = {
 // FIXME: this can be removed by just checking the first "from" value in the status.
 const INITIAL_STATUS = 'Idea';
 
+const DONE_STATUS = 'Done';
+
 export interface TicketStatusTimes {
     key: string,
+    created: Date,
+    finished: Date,
     times: {
         [statusName: string]: number
     }
@@ -19,6 +23,7 @@ export interface TicketStatusTimes {
 
 export async function timesInStatusesForTicket(key: string): Promise<TicketStatusTimes> {
     const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, opts));
+    const issueCreatedDate = new Date(issueDetails.fields.created);
 
     if (issueDetails.changelog.maxResults < issueDetails.changelog.total) {
         throw new Error(`${key} has more changelog events than what we can process with the current Jira API (Got ${issueDetails.changelog.maxResults} event(s), but it has ${issueDetails.changelog.total}`);
@@ -32,8 +37,9 @@ export async function timesInStatusesForTicket(key: string): Promise<TicketStatu
             && statusItem.from !== statusItem.to;
     })
 
+    let doneTime = null;
     let prevStatus = INITIAL_STATUS;
-    let prevStatusStartTime = new Date(issueDetails.fields.created);
+    let prevStatusStartTime = issueCreatedDate;
     const timeInStatuses: { [status: string]: number } = {};
 
     statusChangeHistories.forEach(statusChangeHistory => {
@@ -53,6 +59,8 @@ export async function timesInStatusesForTicket(key: string): Promise<TicketStatu
 
         prevStatus = newStatus;
         prevStatusStartTime = newStatusStartTime;
+
+        if (newStatus === DONE_STATUS) doneTime = newStatusStartTime;
     });
 
     const secondsInPreviousStatus = new Date().getTime() - prevStatusStartTime.getTime();
@@ -61,6 +69,8 @@ export async function timesInStatusesForTicket(key: string): Promise<TicketStatu
 
     return {
         key: key,
+        created: issueCreatedDate,
+        finished: doneTime,
         times: timeInStatuses
     }
 };
@@ -82,6 +92,7 @@ export async function getKeysInJQL(jql: string): Promise<string[]> {
         startAt = result.startAt+result.maxResults;
     } while (hasMorePages);
     console.log('Done fetching');
+    console.log();
 
     return issues;
 }
