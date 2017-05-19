@@ -33,7 +33,11 @@ Then you need to create have a `config.json` file where you give the JIRA creden
     $> run PAY-1 BR-1
     $> run --query="project in (pay,br) AND status = 'done' AND type in (bug,task,story)"
 
-The output format is `$KEY, $CREATION_DATE, $DONE_DATE, $STATUS_TIMES`, where `$STATUS_TIMES` is a comma-separated list of milliseconds in each of the statuses.
+You can also specify the `--file` flag, and you'll get the results written in the given file. Without the flag, you'll get the results in the command window. So, like this:
+
+    $> run --file=out.csv PAY-1
+
+The output format for each line is `$KEY, $CREATION_DATE, $DONE_DATE, $STATUS_TIMES`, where `$STATUS_TIMES` is a comma-separated list of milliseconds in each of the statuses.
 
 For example:
 
