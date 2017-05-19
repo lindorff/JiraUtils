@@ -29,7 +29,7 @@ async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
 
     const lines = timeResults.map(times => times.key
         + ',' + prettyPrintDate(times.created)
-        + ',' + prettyPrintDate(times.finished)
+        + ',' + ((times.finished) ? prettyPrintDate(times.finished) : '')
         + ',' + prettyPrintTimes(times.times, config.statuses)
     );
 
