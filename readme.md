@@ -2,11 +2,24 @@
 
 This script scrapes the Lindorff JIRA to get times on how long a ticket has been in any particular status.
 
-**Note:** This only supports Payment Core's JIRA workflow for now.
+**Note:** There's quite a few of shortcuts made when developing this. If (when) you encounter something weird, just [file an issue in GitHub](https://github.com/lindorff/JiraLead/issues/new) or tell one of the [contributors](https://github.com/lindorff/JiraLead/graphs/contributors) directly.
 
-## Installation
+## 0: Download Node.js
 
-Before running this the first time, run this command in the software directory, to download all kinds of stuff:
+This script needs [Node.js](https://nodejs.org/) to be installed on your computer. I recommend [the "Current" version](https://nodejs.org/en/download/current/).
+
+You can check if you have it installed by opening the command prompt (press <kbd>Win</kbd>+<kbd>R</kbd> and run "cmd") and then check the `npm` command:
+
+    $> npm --version
+    4.2.0
+
+## 1: Download the script
+
+Download [the latest ZIP file](https://github.com/lindorff/JiraLead/archive/master.zip) from [GitHub](https://github.com/lindorff/JiraLead), and unpack it somewhere you remember (such as `c:\jiralead\`)
+
+## 2: Installation
+
+Before running this the first time, run this command in the script's directory, to download all kinds of stuff
 
     $> npm install
 
@@ -15,7 +28,7 @@ Then you need to create have a `config.json` file where you give the JIRA creden
     $> copy config.json.example config.json
     $> notepad config.json
 
-## Usage examples
+## 3: Usage examples
 
     $> run PAY-1 BR-1
     $> run --query="project in (pay,br) AND status = 'done' AND type in (bug,task,story)"
