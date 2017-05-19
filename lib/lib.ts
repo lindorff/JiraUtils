@@ -46,7 +46,7 @@ export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Pro
         prevStatus = newStatus;
         prevStatusStartTime = newStatusStartTime;
 
-        if (newStatus === DONE_STATUS) doneTime = newStatusStartTime;
+        if (newStatus === DONE_STATUS.toLowerCase()) doneTime = newStatusStartTime;
     });
 
     const secondsInPreviousStatus = new Date().getTime() - prevStatusStartTime.getTime();
