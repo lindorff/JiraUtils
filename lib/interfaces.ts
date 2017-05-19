@@ -82,3 +82,12 @@ export interface Config {
     jira: JiraAuth,
     statuses: string[]
 }
+
+export interface TicketStatusTimes {
+    key: string,
+    created: Date,
+    finished: Date,
+    times: {
+        [statusName: string]: number
+    }
+}

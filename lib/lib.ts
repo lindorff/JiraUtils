@@ -1,20 +1,11 @@
 import * as request from 'request-promise-native';
-import { Issue, Status, HistoryItem, IssueQueryResponse, JiraAuth } from './interfaces';
+import { Issue, Status, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from './interfaces';
 import fs = require('fs');
 
 // FIXME: this can be removed by just checking the first "from" value in the status.
 const INITIAL_STATUS = 'Idea';
 
 const DONE_STATUS = 'Done';
-
-export interface TicketStatusTimes {
-    key: string,
-    created: Date,
-    finished: Date,
-    times: {
-        [statusName: string]: number
-    }
-}
 
 export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Promise<TicketStatusTimes> {
     const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, { auth: auth }));
