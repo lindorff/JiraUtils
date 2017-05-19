@@ -2,9 +2,6 @@ import * as request from 'request-promise-native';
 import { Issue, Status, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from './interfaces';
 import fs = require('fs');
 
-// FIXME: this can be removed by just checking the first "from" value in the status.
-const INITIAL_STATUS = 'Idea';
-
 const DONE_STATUS = 'Done';
 
 export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Promise<TicketStatusTimes> {
@@ -24,7 +21,7 @@ export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Pro
     })
 
     let doneTime:Date = null;
-    let prevStatus = INITIAL_STATUS;
+    let prevStatus:string = null;
     let prevStatusStartTime:Date = issueCreatedDate;
     const timeInStatuses: { [status: string]: number } = {};
 
@@ -39,6 +36,8 @@ export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Pro
         const newStatusStartTime = new Date(statusChangeHistory.created);
         const newStatus = statusChange.toString.toLowerCase();
         const secondsInPreviousStatus = newStatusStartTime.getTime() - prevStatusStartTime.getTime();
+
+        if (prevStatus === null) prevStatus = statusChange.fromString.toLowerCase();
 
         if (!timeInStatuses[prevStatus]) timeInStatuses[prevStatus] = 0;
         timeInStatuses[prevStatus] += secondsInPreviousStatus;
