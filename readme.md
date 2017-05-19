@@ -10,7 +10,7 @@ Before running this the first time, run this command in the software directory, 
 
     $> npm install
 
-Then you need to create a `config.json` file with your JIRA credentials. You probably want to copy the example file as a template.
+Then you need to create have a `config.json` file where you give the JIRA credentials that should be used to retrieve the info, and the statuses that your report will use. You probably want to copy the example file as a template and modify it to your needs.
 
     $> copy config.json.example config.json
     $> notepad config.json

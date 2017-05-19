@@ -1,4 +1,11 @@
 {
-    "user": "theuser",
-    "pass": "mypassword!"
+    "jira": {
+        "user": "theuser",
+        "pass": "mypassword!"
+    },
+    "statuses": [
+        "To Do",
+        "Doing",
+        "Done"
+    ]
 }

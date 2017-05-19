@@ -72,3 +72,13 @@ export class Status {
     static readonly INVALID = '10103';
     static readonly ARCHIVED = '13411';
 }
+
+export interface JiraAuth {
+    user:string, 
+    pass:string
+}
+
+export interface Config {
+    jira: JiraAuth,
+    statuses: string[]
+}

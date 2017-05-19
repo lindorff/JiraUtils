@@ -1,11 +1,6 @@
 import * as request from 'request-promise-native';
-import { Issue, Status, HistoryItem, IssueQueryResponse } from './interfaces';
+import { Issue, Status, HistoryItem, IssueQueryResponse, JiraAuth } from './interfaces';
 import fs = require('fs');
-const auth = require('../config.json');
-
-const opts: request.RequestPromiseOptions = {
-    auth: auth
-};
 
 // FIXME: this can be removed by just checking the first "from" value in the status.
 const INITIAL_STATUS = 'Idea';
@@ -21,8 +16,8 @@ export interface TicketStatusTimes {
     }
 }
 
-export async function timesInStatusesForTicket(key: string): Promise<TicketStatusTimes> {
-    const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, opts));
+export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Promise<TicketStatusTimes> {
+    const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, { auth: auth }));
     const issueCreatedDate = new Date(issueDetails.fields.created);
 
     if (issueDetails.changelog.maxResults < issueDetails.changelog.total) {
@@ -75,7 +70,7 @@ export async function timesInStatusesForTicket(key: string): Promise<TicketStatu
     }
 };
 
-export async function getKeysInJQL(jql: string): Promise<string[]> {
+export async function getKeysInJQL(jql: string, auth: JiraAuth): Promise<string[]> {
     const issues: string[] = [];
 
     let uri = `https://jira.lindorff.com/rest/api/2/search?jql=${jql}`;
@@ -83,13 +78,13 @@ export async function getKeysInJQL(jql: string): Promise<string[]> {
     let startAt = 0;
     console.log(`Fetching all results from URI ${uri}`);
     do {
-        const result = <IssueQueryResponse>JSON.parse(await request(`${uri}&startAt=${startAt}`, opts));
-        console.log(`Got ${result.startAt}..${result.startAt+result.maxResults}/${result.total}`);
+        const result = <IssueQueryResponse>JSON.parse(await request(`${uri}&startAt=${startAt}`, { auth: auth }));
+        console.log(`Got ${result.startAt}..${result.startAt + result.maxResults}/${result.total}`);
 
         result.issues.forEach(issue => issues.push(issue.key));
 
         hasMorePages = (result.startAt + result.maxResults) < (result.total);
-        startAt = result.startAt+result.maxResults;
+        startAt = result.startAt + result.maxResults;
     } while (hasMorePages);
     console.log('Done fetching');
     console.log();

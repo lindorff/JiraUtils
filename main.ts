@@ -1,5 +1,7 @@
 import { timesInStatusesForTicket, getKeysInJQL } from './lib/lib';
+import { Config } from './lib/interfaces';
 import * as yargs from 'yargs';
+const config = <Config>require('./config.json');
 
 const argv = yargs.argv;
 
@@ -12,40 +14,28 @@ if (argv.query) {
     keys = argv._;
 }
 
-const statuses = [
-    'Idea',
-    'Gathering Requirements',
-    'Ready for development',
-    'In Development',
-    'To Approve',
-    'In Approval',
-    'Done',
-    'Archived',
-    'Invalid'
-];
-
 function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
     return statuses
         .map(s => values[s] || 0)
         .join(',');
 }
 
-function prettyPrintDate(date:Date):string {
-    return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
+function prettyPrintDate(date: Date): string {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
 function prettyPrintAllTickets(keys: string[]) {
-    console.log(`Key,Created,Finished,${statuses.join(',')}`);
+    console.log(`Key,Created,Finished,${config.statuses.join(',')}`);
     keys.forEach(async key => {
-        const times = await timesInStatusesForTicket(key);
-        console.log(`${key},${prettyPrintDate(times.created)},${prettyPrintDate(times.finished)},${prettyPrintTimes(times.times, statuses)}`);
+        const times = await timesInStatusesForTicket(key, config.jira);
+        console.log(`${key},${prettyPrintDate(times.created)},${prettyPrintDate(times.finished)},${prettyPrintTimes(times.times, config.statuses)}`);
     });
 
 }
 
 (async () => {
     if (query) {
-        keys = await getKeysInJQL(query);
+        keys = await getKeysInJQL(query, config.jira);
     }
 
     if (keys.length > 0) {
