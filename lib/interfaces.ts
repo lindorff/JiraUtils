@@ -60,19 +60,6 @@ export interface IssueQueryResponse {
     issues: Issue[]
 }
 
-// probably won't need this.
-export class Status {
-    static readonly IDEA = '13408';
-    static readonly GATHERING_REQUIREMENTS = '10100';
-    static readonly READY_FOR_DEVELOPMENT = '10101';
-    static readonly IN_DEVELOPMENT = '11107';
-    static readonly TO_APPROVE = '13409';
-    static readonly IN_APPROVAL = '13410';
-    static readonly DONE = '11500';
-    static readonly INVALID = '10103';
-    static readonly ARCHIVED = '13411';
-}
-
 export interface JiraAuth {
     user:string, 
     pass:string

@@ -1,5 +1,5 @@
 import * as request from 'request-promise-native';
-import { Issue, Status, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from './interfaces';
+import { Issue, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from './interfaces';
 import fs = require('fs');
 
 export async function timesInStatusesForTicket(key: string, auth: JiraAuth, finalStatuses: string[]): Promise<TicketStatusTimes> {
