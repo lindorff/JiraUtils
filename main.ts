@@ -11,6 +11,7 @@ const file = <string>(argv.file ? argv.file : null);
 
 function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
     return statuses
+        .map(s => s.toLowerCase())
         .map(s => values[s] || 0)
         .join(',');
 }
