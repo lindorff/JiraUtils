@@ -23,9 +23,9 @@ export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Pro
             && statusItem.from !== statusItem.to;
     })
 
-    let doneTime = null;
+    let doneTime:Date = null;
     let prevStatus = INITIAL_STATUS;
-    let prevStatusStartTime = issueCreatedDate;
+    let prevStatusStartTime:Date = issueCreatedDate;
     const timeInStatuses: { [status: string]: number } = {};
 
     statusChangeHistories.forEach(statusChangeHistory => {
