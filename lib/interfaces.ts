@@ -86,7 +86,7 @@ export interface Config {
 export interface TicketStatusTimes {
     key: string,
     created: Date,
-    finished: Date,
+    finished?: Date,
     times: {
         [statusName: string]: number
     }
