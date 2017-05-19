@@ -6,6 +6,6 @@
     "statuses": [
         "To Do",
         "Doing",
-        "Done"
+        "*Done"
     ]
 }

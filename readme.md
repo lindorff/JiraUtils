@@ -28,6 +28,8 @@ Then you need to create have a `config.json` file where you give the JIRA creden
     $> copy config.json.example config.json
     $> notepad config.json
 
+In your statuses, you need to mark the ones you consider as "done" with an asterisk before the name (as in `config.json.example`). Otherwise the last given status is assumed as finished.
+
 ## 3: Usage examples
 
     $> run PAY-1 BR-1

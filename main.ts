@@ -4,6 +4,22 @@ import * as fs from 'fs';
 import * as yargs from 'yargs';
 const config = <Config>require('./config.json');
 
+const lowercaseStatuses = config.statuses
+    .map(status => status.toLowerCase())
+const statuses = lowercaseStatuses
+    .map(status => status.replace('*', ''));
+const finalStatuses = lowercaseStatuses
+    .filter(status => status.indexOf('*') >= 0)
+    .map(status => status.replace('*', ''));
+
+if (finalStatuses.length === 0) {
+    const finalStatusGuess = statuses[statuses.length - 1];
+    console.log(`No status marked as final in the config.json. Guessing '${finalStatusGuess}' as the final status`);
+    console.log('Mark the statuses that close a ticket with a "*" before the status name in your config.json');
+    console.log();
+    finalStatuses.push(finalStatusGuess);
+}
+
 const argv = yargs.argv;
 let keys = <string[]>(argv.query ? [] : argv._);
 const query = <string>(argv.query ? argv.query : null);
@@ -21,10 +37,9 @@ function prettyPrintDate(date: Date): string {
 }
 
 async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
+    const heading = [`Key,Created,Finished,${config.statuses.map(s=>s.replace('*','')).join(',')}`];
 
-    const heading = [`Key,Created,Finished,${config.statuses.join(',')}`];
-
-    const timePromises = keys.map(key => timesInStatusesForTicket(key, config.jira));
+    const timePromises = keys.map(key => timesInStatusesForTicket(key, config.jira, finalStatuses));
     const timeResults = await Promise.all(timePromises);
 
     const lines = timeResults.map(times => times.key

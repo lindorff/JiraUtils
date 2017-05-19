@@ -2,9 +2,7 @@ import * as request from 'request-promise-native';
 import { Issue, Status, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from './interfaces';
 import fs = require('fs');
 
-const DONE_STATUS = 'Done';
-
-export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Promise<TicketStatusTimes> {
+export async function timesInStatusesForTicket(key: string, auth: JiraAuth, finalStatuses: string[]): Promise<TicketStatusTimes> {
     const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, { auth: auth }));
     const issueCreatedDate = new Date(issueDetails.fields.created);
 
@@ -45,7 +43,7 @@ export async function timesInStatusesForTicket(key: string, auth: JiraAuth): Pro
         prevStatus = newStatus;
         prevStatusStartTime = newStatusStartTime;
 
-        if (newStatus === DONE_STATUS.toLowerCase()) doneTime = newStatusStartTime;
+        if (finalStatuses.indexOf(newStatus) >= 0) doneTime = newStatusStartTime;
     });
 
     const secondsInPreviousStatus = new Date().getTime() - prevStatusStartTime.getTime();
