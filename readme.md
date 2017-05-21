@@ -35,6 +35,8 @@ In your statuses, you need to mark the ones you consider as "done" with an aster
     $> run PAY-1 BR-1
     $> run --query="project in (pay,br) AND status = 'done' AND type in (bug,task,story)"
 
+_Run the script without any arguments to see all available options_
+
 You can also specify the `--file` flag, and you'll get the results written in the given file. Without the flag, you'll get the results in the command window. So, like this:
 
     $> run --file=out.csv PAY-1
