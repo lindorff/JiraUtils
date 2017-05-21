@@ -1,6 +1,7 @@
 /// <reference path="../node_modules/@types/mocha/index.d.ts" />
 import * as os from 'os'
 import * as path from 'path'
+import * as fs from 'fs'
 import { exec, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
 import { expect, assert } from 'chai'
 
@@ -71,5 +72,12 @@ describe('Running the script', () => {
         const statusName = 'foo';
         const output = await execRunBatch(`--statuses=${statusName}`, ARBITRARY_TICKET_KEY_1);
         expect(output.stdout).to.contain(`Key,Created,Finished,${statusName}`);
+    });
+
+    it('should be able to write output to a file', async () => {
+        const fileName = `test-output-${Date.now() % 1000}.txt`;
+        await execRunBatch(`--file=${fileName}`, ARBITRARY_TICKET_KEY_1);
+        expect(fs.existsSync(fileName));
+        fs.unlinkSync(fileName);
     });
 })
