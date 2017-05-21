@@ -3,8 +3,14 @@ import { Config, TicketStatusTimes } from './lib/interfaces';
 import * as fs from 'fs';
 import * as yargs from 'yargs';
 const config = <Config>require('./config.json');
+const argv = yargs.argv;
+let keys = <string[]>(argv.query ? [] : argv._);
+const query = <string>(argv.query ? argv.query : null);
+const file = <string>(argv.file ? argv.file : null);
 
-const lowercaseStatuses = config.statuses
+const inputStatuses = getInputStatuses();
+
+const lowercaseStatuses = inputStatuses
     .map(status => status.toLowerCase())
 const statuses = lowercaseStatuses
     .map(status => status.replace('*', ''));
@@ -20,10 +26,13 @@ if (finalStatuses.length === 0) {
     finalStatuses.push(finalStatusGuess);
 }
 
-const argv = yargs.argv;
-let keys = <string[]>(argv.query ? [] : argv._);
-const query = <string>(argv.query ? argv.query : null);
-const file = <string>(argv.file ? argv.file : null);
+function getInputStatuses():string[] {
+    if (argv.statuses) {
+        return argv.statuses.split(',');
+    } else {
+        return config.statuses;
+    }
+}
 
 function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
     return statuses
@@ -37,7 +46,7 @@ function prettyPrintDate(date: Date): string {
 }
 
 async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
-    const heading = [`Key,Created,Finished,${config.statuses.map(s => s.replace('*', '')).join(',')}`];
+    const heading = [`Key,Created,Finished,${inputStatuses.map(s => s.replace('*', '')).join(',')}`];
 
     const timePromises = keys.map(key => timesInStatusesForTicket(key, config.jira, finalStatuses));
     const timeResults = await Promise.all(timePromises);
@@ -69,7 +78,13 @@ async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
 
     } else {
         console.log(`
-run [--file=FILE_NAME] [--query=JQL | KEY1 [KEY2 [...]]]
+run [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
+
+    --file=FILE_NAME
+        Write output to a file instead of standard out.
+    --statuses=STATUS_1[,STATUS_2[...]]
+        Override the statuses from config.json with a comma separated list.
+        e.g. --statuses="foo,bar baz,*done"
 
 Example: run --file=out.csv --query="project in (br,pay) and type in (bug,task,story) and status = done
 Example: run --file=out.csv br-1 pay-1

@@ -18,9 +18,9 @@ const scriptName = "run.bat";
 
 console.log(`pwd is ${opts.cwd}`);
 
-async function execRunBatch(): Promise<ExecOutput> {
+async function execRunBatch(...args:string[]): Promise<ExecOutput> {
     return new Promise<ExecOutput>((resolve, reject) => {
-        execFile(scriptName, opts, (error: Error, stdout: string, stderr: string) => {
+        execFile(scriptName, args, opts, (error: Error, stdout: string, stderr: string) => {
             if (error) {
                 reject(error);
             } else {
@@ -46,5 +46,11 @@ describe('Running the script', () => {
                 throw e;
             }
         }
+    });
+
+    it('should show any status given in --status', async () => {
+        const statusName = 'foo';
+        const output = await execRunBatch(`--statuses=${statusName}`, 'pay-4145');
+        expect(output.stdout).to.contain(`Key,Created,Finished,${statusName}`);
     });
 })
