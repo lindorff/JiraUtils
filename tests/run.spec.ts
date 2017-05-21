@@ -1,7 +1,7 @@
 /// <reference path="../node_modules/@types/mocha/index.d.ts" />
 import * as os from 'os'
 import * as path from 'path'
-import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
+import { exec, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
 import { expect, assert } from 'chai'
 
 interface ExecOutput {
@@ -15,12 +15,15 @@ const opts: ExecOptionsWithStringEncoding = {
 }
 
 const scriptName = "run.bat";
+const ARBITRARY_TICKET_KEY_1 = 'PAY-4145';
+const ARBITRARY_TICKET_KEY_2 = 'PAY-4206';
 
 console.log(`pwd is ${opts.cwd}`);
 
-async function execRunBatch(...args:string[]): Promise<ExecOutput> {
+async function execRunBatch(...args: string[]): Promise<ExecOutput> {
     return new Promise<ExecOutput>((resolve, reject) => {
-        execFile(scriptName, args, opts, (error: Error, stdout: string, stderr: string) => {
+        // this needs to be "exec" since "execFile" terminates too early on JQL for some weird reason...
+        exec(`${scriptName} ${args.join(' ')}`, opts, (error: Error, stdout: string, stderr: string) => {
             if (error) {
                 reject(error);
             } else {
@@ -48,9 +51,25 @@ describe('Running the script', () => {
         }
     });
 
+    it('should support giving one key as a parameter', async () => {
+        const output = await execRunBatch(ARBITRARY_TICKET_KEY_1);
+        expect(output.stdout).to.contain(`${ARBITRARY_TICKET_KEY_1},2017-`);
+    });
+
+    it('should support giving many keys as a parameter', async () => {
+        const output = await execRunBatch(ARBITRARY_TICKET_KEY_1, ARBITRARY_TICKET_KEY_2);
+        expect(output.stdout).to.contain(`${ARBITRARY_TICKET_KEY_1},2017-`);
+        expect(output.stdout).to.contain(`${ARBITRARY_TICKET_KEY_2},2017-`);
+    });
+
+    it('should support fetching tickets with JQL', async () => {
+        const output = await execRunBatch(`--query="key=${ARBITRARY_TICKET_KEY_1}"`);
+        expect(output.stdout).to.contain(`${ARBITRARY_TICKET_KEY_1},2017-`);
+    });
+
     it('should show any status given in --status', async () => {
         const statusName = 'foo';
-        const output = await execRunBatch(`--statuses=${statusName}`, 'pay-4145');
+        const output = await execRunBatch(`--statuses=${statusName}`, ARBITRARY_TICKET_KEY_1);
         expect(output.stdout).to.contain(`Key,Created,Finished,${statusName}`);
     });
 })
