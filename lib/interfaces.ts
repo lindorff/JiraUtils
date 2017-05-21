@@ -61,8 +61,8 @@ export interface IssueQueryResponse {
 }
 
 export interface JiraAuth {
-    user:string, 
-    pass:string
+    user: string,
+    pass: string
 }
 
 export interface Config {

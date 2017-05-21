@@ -37,7 +37,7 @@ function prettyPrintDate(date: Date): string {
 }
 
 async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
-    const heading = [`Key,Created,Finished,${config.statuses.map(s=>s.replace('*','')).join(',')}`];
+    const heading = [`Key,Created,Finished,${config.statuses.map(s => s.replace('*', '')).join(',')}`];
 
     const timePromises = keys.map(key => timesInStatusesForTicket(key, config.jira, finalStatuses));
     const timeResults = await Promise.all(timePromises);
