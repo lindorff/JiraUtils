@@ -68,11 +68,13 @@ async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
         }
 
     } else {
-        console.log('run [--file=FILE_NAME] [--query=JQL | KEY1 [KEY2 [...]]]');
-        console.log();
-        console.log('Example: run --file=out.csv --query="project in (br,pay) and type in (bug,task,story) and status = done"');
-        console.log('Example: run --file=out.csv br-1 pay-1');
-        console.log('Example: run pay-4000');
+        console.log(`
+run [--file=FILE_NAME] [--query=JQL | KEY1 [KEY2 [...]]]
+
+Example: run --file=out.csv --query="project in (br,pay) and type in (bug,task,story) and status = done
+Example: run --file=out.csv br-1 pay-1
+Example: run pay-4000
+`);
         process.exit(0);
     }
 })();
