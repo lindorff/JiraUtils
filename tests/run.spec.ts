@@ -67,7 +67,7 @@ describe('Running the script', () => {
         expect(output.stdout).to.contain(`${ARBITRARY_TICKET_KEY_1},2017-`);
     });
 
-    it('should show any status given in --status', async () => {
+    it('should show any status given through command line', async () => {
         const statusName = 'foo';
         const output = await execRunBatch(`--statuses=${statusName}`, ARBITRARY_TICKET_KEY_1);
         expect(output.stdout).to.contain(`Key,Created,Finished,${statusName}`);
