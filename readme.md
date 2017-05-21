@@ -2,7 +2,7 @@
 
 This script scrapes the Lindorff JIRA to get times on how long a ticket has been in any particular status.
 
-**Note:** There's quite a few of shortcuts made when developing this. If (when) you encounter something weird, just [file an issue in GitHub](https://github.com/lindorff/JiraLead/issues/new) or tell one of the [contributors](https://github.com/lindorff/JiraLead/graphs/contributors) directly.
+**Note:** There's quite a few of shortcuts made when developing this. If (when) you encounter something weird, just [file an issue in GitHub](https://github.com/lindorff/JiraLead/issues/new) or tell [Henrik Paul](mailto:henrik.paul@lindorff.com) directly.
 
 ## 0: Download Node.js
 
