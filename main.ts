@@ -73,6 +73,6 @@ async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
         console.log('Example: run --file=out.csv --query="project in (br,pay) and type in (bug,task,story) and status = done"');
         console.log('Example: run --file=out.csv br-1 pay-1');
         console.log('Example: run pay-4000');
-        process.exit(1);
+        process.exit(0);
     }
 })();

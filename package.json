@@ -18,7 +18,15 @@
     "typescript": "^2.3.2",
     "yargs": "^8.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/chai": "^3.5.2",
+    "@types/mocha": "^2.2.41",
+    "chai": "^3.5.0",
+    "mocha": "^3.4.1"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.spec.ts"
+  },
   "author": "Henrik Paul <henrik.paul@lindorff.com>",
   "license": "UNLICENSED"
 }
