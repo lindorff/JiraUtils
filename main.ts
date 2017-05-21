@@ -1,8 +1,27 @@
 import { timesInStatusesForTicket, getKeysInJQL } from './lib/lib';
 import { Config, TicketStatusTimes } from './lib/interfaces';
 import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import * as yargs from 'yargs';
-const config = <Config>require('./config.json');
+
+const config = ((): Config => {
+    const tryFiles = Array
+        .from(new Set([
+            process.cwd() + '/config.json',
+            os.homedir() + '/.jiralead/config.json',
+        ]))
+        .map(pathName => path.normalize(pathName));
+
+    const existingFile = tryFiles.find(path => fs.existsSync(path))
+
+    if (existingFile) {
+        return require(process.cwd() + '/config.json');
+    } else {
+        console.error(`Couldn't find any of the following files:\n${tryFiles.join("\n")}\n\nCopy ${path.normalize(__dirname + '/../config.json.example')} and progress from there`);
+        process.exit(1);
+    }
+})();
 
 const lowercaseStatuses = config.statuses
     .map(status => status.toLowerCase())

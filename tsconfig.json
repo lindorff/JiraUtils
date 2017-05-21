@@ -3,6 +3,8 @@
         "typeRoots": [
             "./node_modules/@types"
         ],
+        "module": "commonjs",
+        "outDir": "dist",
         "lib": ["es2015"]
     }
 }
