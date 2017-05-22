@@ -12,7 +12,8 @@ interface ExecOutput {
 
 const opts: ExecOptionsWithStringEncoding = {
     encoding: 'utf8',
-    cwd: path.resolve(__dirname, '..')
+    cwd: path.resolve(__dirname, '..'),
+    timeout: 0
 }
 
 const scriptName = "run.bat";
@@ -37,7 +38,10 @@ async function execRunBatch(...args: string[]): Promise<ExecOutput> {
     });
 }
 
-describe('Running the script', () => {
+describe('Running the script', function () {
+    this.slow(2500);
+    this.timeout(5000);
+
     it('should run successfully without arguments', async () => {
         try {
             const output = await execRunBatch();
