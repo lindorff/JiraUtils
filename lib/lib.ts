@@ -1,22 +1,33 @@
-import * as request from 'request-promise-native';
-import { Issue, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from './interfaces';
-import fs = require('fs');
+import * as request from "request-promise-native";
+import { Issue, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from "./interfaces";
+import fs = require("fs");
 
-export async function timesInStatusesForTicket(key: string, auth: JiraAuth, finalStatuses: string[]): Promise<TicketStatusTimes> {
-    const issueDetails = <Issue>JSON.parse(await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, { auth: auth }));
+export async function timesInStatusesForTicket(
+    key: string,
+    auth: JiraAuth,
+    finalStatuses: string[]
+): Promise<TicketStatusTimes> {
+    const issueDetails = <Issue>JSON.parse(
+        await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, { auth: auth })
+    );
     const issueCreatedDate = new Date(issueDetails.fields.created);
 
     if (issueDetails.changelog.maxResults < issueDetails.changelog.total) {
-        throw new Error(`${key} has more changelog events than what we can process with the current Jira API (Got ${issueDetails.changelog.maxResults} event(s), but it has ${issueDetails.changelog.total}`);
+        throw new Error(
+            `${key} has more changelog events than what we can process with the current Jira API (Got ${issueDetails
+                .changelog.maxResults} event(s), but it has ${issueDetails.changelog.total}`
+        );
     }
 
     const statusChangeHistories = issueDetails.changelog.histories.filter(history => {
-        const statusItem = history.items.find(item => item.field === 'status')
-        return statusItem !== undefined
-            && statusItem.from != null
-            && statusItem.to != null
-            && statusItem.from !== statusItem.to;
-    })
+        const statusItem = history.items.find(item => item.field === "status");
+        return (
+            statusItem !== undefined &&
+            statusItem.from != null &&
+            statusItem.to != null &&
+            statusItem.from !== statusItem.to
+        );
+    });
 
     let doneTime: Date = null;
     let prevStatus: string = null;
@@ -24,12 +35,9 @@ export async function timesInStatusesForTicket(key: string, auth: JiraAuth, fina
     const timeInStatuses: { [status: string]: number } = {};
 
     statusChangeHistories.forEach(statusChangeHistory => {
-
         /* There shouldn't be many status changes in one history entry,
          * but just in case, we'll take the last one */
-        const statusChange = statusChangeHistory.items
-            .reverse()
-            .find(item => item.field === 'status');
+        const statusChange = statusChangeHistory.items.reverse().find(item => item.field === "status");
 
         const newStatusStartTime = new Date(statusChangeHistory.created);
         const newStatus = statusChange.toString.toLowerCase();
@@ -55,8 +63,8 @@ export async function timesInStatusesForTicket(key: string, auth: JiraAuth, fina
         created: issueCreatedDate,
         finished: doneTime,
         times: timeInStatuses
-    }
-};
+    };
+}
 
 export async function getKeysInJQL(jql: string, auth: JiraAuth): Promise<string[]> {
     const issues: string[] = [];
@@ -71,10 +79,10 @@ export async function getKeysInJQL(jql: string, auth: JiraAuth): Promise<string[
 
         result.issues.forEach(issue => issues.push(issue.key));
 
-        hasMorePages = (result.startAt + result.maxResults) < (result.total);
+        hasMorePages = result.startAt + result.maxResults < result.total;
         startAt = result.startAt + result.maxResults;
     } while (hasMorePages);
-    console.log('Done fetching');
+    console.log("Done fetching");
     console.log();
 
     return issues;

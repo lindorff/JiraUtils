@@ -43,13 +43,13 @@ export interface Issue {
         created: string;
         subtasks: Issue[];
         [key: string]: any;
-    }
+    };
     changelog?: {
         maxResults: number;
         startAt: number;
         total: number;
-        histories: History[]
-    }
+        histories: History[];
+    };
 }
 
 export interface IssueQueryResponse {
@@ -57,24 +57,24 @@ export interface IssueQueryResponse {
     startAt: number;
     maxResults: number;
     total: number;
-    issues: Issue[]
+    issues: Issue[];
 }
 
 export interface JiraAuth {
-    user: string,
-    pass: string
+    user: string;
+    pass: string;
 }
 
 export interface Config {
-    jira: JiraAuth,
-    statuses: string[]
+    jira: JiraAuth;
+    statuses: string[];
 }
 
 export interface TicketStatusTimes {
-    key: string,
-    created: Date,
-    finished?: Date,
+    key: string;
+    created: Date;
+    finished?: Date;
     times: {
-        [statusName: string]: number
-    }
+        [statusName: string]: number;
+    };
 }

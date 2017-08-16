@@ -1,8 +1,8 @@
-import { timesInStatusesForTicket, getKeysInJQL } from './lib/lib';
-import { Config, TicketStatusTimes } from './lib/interfaces';
-import * as fs from 'fs';
-import * as yargs from 'yargs';
-const config = <Config>require('./config.json');
+import { timesInStatusesForTicket, getKeysInJQL } from "./lib/lib";
+import { Config, TicketStatusTimes } from "./lib/interfaces";
+import * as fs from "fs";
+import * as yargs from "yargs";
+const config = <Config>require("./config.json");
 const argv = yargs.argv;
 let keys = <string[]>(argv.query ? [] : argv._);
 const query = <string>(argv.query ? argv.query : null);
@@ -10,13 +10,11 @@ const file = <string>(argv.file ? argv.file : null);
 
 const inputStatuses = getInputStatuses();
 
-const lowercaseStatuses = inputStatuses
-    .map(status => status.toLowerCase())
-const statuses = lowercaseStatuses
-    .map(status => status.replace('*', ''));
+const lowercaseStatuses = inputStatuses.map(status => status.toLowerCase());
+const statuses = lowercaseStatuses.map(status => status.replace("*", ""));
 const finalStatuses = lowercaseStatuses
-    .filter(status => status.indexOf('*') >= 0)
-    .map(status => status.replace('*', ''));
+    .filter(status => status.indexOf("*") >= 0)
+    .map(status => status.replace("*", ""));
 
 if (finalStatuses.length === 0) {
     const finalStatusGuess = statuses[statuses.length - 1];
@@ -26,19 +24,16 @@ if (finalStatuses.length === 0) {
     finalStatuses.push(finalStatusGuess);
 }
 
-function getInputStatuses():string[] {
+function getInputStatuses(): string[] {
     if (argv.statuses) {
-        return argv.statuses.split(',');
+        return argv.statuses.split(",");
     } else {
         return config.statuses;
     }
 }
 
 function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
-    return statuses
-        .map(s => s.toLowerCase())
-        .map(s => values[s] || 0)
-        .join(',');
+    return statuses.map(s => s.toLowerCase()).map(s => values[s] || 0).join(",");
 }
 
 function prettyPrintDate(date: Date): string {
@@ -46,15 +41,20 @@ function prettyPrintDate(date: Date): string {
 }
 
 async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
-    const heading = [`Key,Created,Finished,${inputStatuses.map(s => s.replace('*', '')).join(',')}`];
+    const heading = [`Key,Created,Finished,${inputStatuses.map(s => s.replace("*", "")).join(",")}`];
 
     const timePromises = keys.map(key => timesInStatusesForTicket(key, config.jira, finalStatuses));
     const timeResults = await Promise.all(timePromises);
 
-    const lines = timeResults.map(times => times.key
-        + ',' + prettyPrintDate(times.created)
-        + ',' + ((times.finished) ? prettyPrintDate(times.finished) : '')
-        + ',' + prettyPrintTimes(times.times, statuses)
+    const lines = timeResults.map(
+        times =>
+            times.key +
+            "," +
+            prettyPrintDate(times.created) +
+            "," +
+            (times.finished ? prettyPrintDate(times.finished) : "") +
+            "," +
+            prettyPrintTimes(times.times, statuses)
     );
 
     return heading.concat(lines);
@@ -69,13 +69,14 @@ async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
         const strings = await getTicketTimeStrings(keys);
 
         if (!file) {
-            strings.forEach((line) => { console.log(line) });
+            strings.forEach(line => {
+                console.log(line);
+            });
         } else {
             console.log(`Writing to ${file}`);
-            fs.writeFileSync(file, strings.join("\n"), { encoding: 'utf-8' });
+            fs.writeFileSync(file, strings.join("\n"), { encoding: "utf-8" });
             console.log(`Success!`);
         }
-
     } else {
         console.log(`
 run [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
