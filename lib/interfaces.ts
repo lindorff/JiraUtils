@@ -42,6 +42,7 @@ export interface Issue {
     fields: {
         created: string;
         subtasks: Issue[];
+        summary: string;
         [key: string]: any;
     };
     changelog?: {
@@ -68,10 +69,12 @@ export interface JiraAuth {
 export interface Config {
     jira: JiraAuth;
     statuses: string[];
+    showSummary: boolean;
 }
 
-export interface TicketStatusTimes {
+export interface TicketInfo {
     key: string;
+    summary: string;
     created: Date;
     finished?: Date;
     times: {

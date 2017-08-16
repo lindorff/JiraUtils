@@ -1,12 +1,12 @@
 import * as request from "request-promise-native";
-import { Issue, HistoryItem, IssueQueryResponse, JiraAuth, TicketStatusTimes } from "./interfaces";
+import { Issue, HistoryItem, IssueQueryResponse, JiraAuth, TicketInfo } from "./interfaces";
 import fs = require("fs");
 
 export async function timesInStatusesForTicket(
     key: string,
     auth: JiraAuth,
     finalStatuses: string[]
-): Promise<TicketStatusTimes> {
+): Promise<TicketInfo> {
     const issueDetails = <Issue>JSON.parse(
         await request(`https://jira.lindorff.com/rest/api/2/issue/${key}?expand=changelog`, { auth: auth })
     );
@@ -60,6 +60,7 @@ export async function timesInStatusesForTicket(
 
     return {
         key: key,
+        summary: issueDetails.fields.summary,
         created: issueCreatedDate,
         finished: doneTime,
         times: timeInStatuses

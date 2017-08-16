@@ -47,3 +47,7 @@ For example:
 
     Key,Created,Finished,Idea,Gathering Requirements,Ready for development,In Development,To Approve,In Approval,Done,Archived,Invalid
     BR-1358,2017-5-17,2017-5-17,13157,0,3536031,55516,0,0,12537224,0,0
+
+## 4: Show summaries
+
+If you set the "showSummary" setting to "true" in `config.json`, you will get the summary of the ticket into the result set as well.

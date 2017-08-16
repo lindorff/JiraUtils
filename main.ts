@@ -1,5 +1,5 @@
 import { timesInStatusesForTicket, getKeysInJQL } from "./lib/lib";
-import { Config, TicketStatusTimes } from "./lib/interfaces";
+import { Config, TicketInfo } from "./lib/interfaces";
 import * as fs from "fs";
 import * as yargs from "yargs";
 const config = <Config>require("./config.json");
@@ -41,21 +41,26 @@ function prettyPrintDate(date: Date): string {
 }
 
 async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
-    const heading = [`Key,Created,Finished,${inputStatuses.map(s => s.replace("*", "")).join(",")}`];
+    const summary = config.showSummary ? "Summary," : "";
+    const heading = [`Key,${summary}Created,Finished,${inputStatuses.map(s => s.replace("*", "")).join(",")}`];
 
-    const timePromises = keys.map(key => timesInStatusesForTicket(key, config.jira, finalStatuses));
-    const timeResults = await Promise.all(timePromises);
+    const infoPromises = keys.map(key => timesInStatusesForTicket(key, config.jira, finalStatuses));
+    const infoResults = await Promise.all(infoPromises);
 
-    const lines = timeResults.map(
-        times =>
-            times.key +
+    const lines = infoResults.map(info => {
+        const finished = info.finished ? prettyPrintDate(info.finished) : "";
+        const summary = config.showSummary ? `"${info.summary.replace('"', '\\"')}",` : "";
+        return (
+            info.key +
             "," +
-            prettyPrintDate(times.created) +
+            summary +
+            prettyPrintDate(info.created) +
             "," +
-            (times.finished ? prettyPrintDate(times.finished) : "") +
+            finished +
             "," +
-            prettyPrintTimes(times.times, statuses)
-    );
+            prettyPrintTimes(info.times, statuses)
+        );
+    });
 
     return heading.concat(lines);
 }

@@ -7,5 +7,6 @@
         "To Do",
         "Doing",
         "*Done"
-    ]
+    ],
+    "showSummary": false
 }
