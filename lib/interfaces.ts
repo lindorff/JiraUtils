@@ -32,6 +32,15 @@ export interface HistoryListing {
     values: History[];
 }
 
+export interface HasChangelog {
+    changelog: {
+        maxResults: number;
+        startAt: number;
+        total: number;
+        histories: History[];
+    };
+}
+
 export interface Issue {
     /** e.g. 2017-05-08T10:43:21.000+0000 */
     resolutiondate: string;
@@ -45,12 +54,6 @@ export interface Issue {
         summary: string;
         [key: string]: any;
     };
-    changelog?: {
-        maxResults: number;
-        startAt: number;
-        total: number;
-        histories: History[];
-    };
 }
 
 export interface IssueQueryResponse {
@@ -61,18 +64,19 @@ export interface IssueQueryResponse {
     issues: Issue[];
 }
 
-export interface JiraAuth {
+export interface JiraConfig {
     user: string;
     pass: string;
+    url: string;
 }
 
 export interface Config {
-    jira: JiraAuth;
+    jira: JiraConfig;
     statuses: string[];
     showSummary: boolean;
 }
 
-export interface TicketInfo {
+export interface IssueTimings {
     key: string;
     summary: string;
     created: Date;

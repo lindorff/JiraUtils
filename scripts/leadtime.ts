@@ -1,8 +1,8 @@
-import { timesInStatusesForTicket, getKeysInJQL } from "./lib/lib";
-import { Config, TicketInfo } from "./lib/interfaces";
+import { Jira } from "../lib/jira";
+import { Config, IssueTimings, Issue, HasChangelog } from "../lib/interfaces";
 import * as fs from "fs";
 import * as yargs from "yargs";
-const config = <Config>require("./config.json");
+const config = <Config>require("../config.json");
 const argv = yargs.argv;
 let keys = <string[]>(argv.query ? [] : argv._);
 const query = <string>(argv.query ? argv.query : null);
@@ -33,19 +33,23 @@ function getInputStatuses(): string[] {
 }
 
 function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
-    return statuses.map(s => s.toLowerCase()).map(s => values[s] || 0).join(",");
+    return statuses
+        .map(s => s.toLowerCase())
+        .map(s => values[s] || 0)
+        .join(",");
 }
 
 function prettyPrintDate(date: Date): string {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
+function getIssueTimeStrings<IssueWithChangelog extends Issue & HasChangelog>(issues: IssueWithChangelog[]): string[] {
     const summary = config.showSummary ? "Summary," : "";
-    const heading = [`Key,${summary}Created,Finished,${inputStatuses.map(s => s.replace("*", "")).join(",")}`];
+    const heading = [
+        `Key,Story Points,${summary}Created,Finished,${inputStatuses.map(s => s.replace("*", "")).join(",")}`
+    ];
 
-    const infoPromises = keys.map(key => timesInStatusesForTicket(key, config.jira, finalStatuses));
-    const infoResults = await Promise.all(infoPromises);
+    const infoResults = issues.map(issue => Jira.getIssueTimings(issue, finalStatuses));
 
     const lines = infoResults.map(info => {
         const finished = info.finished ? prettyPrintDate(info.finished) : "";
@@ -66,22 +70,11 @@ async function getTicketTimeStrings(keys: string[]): Promise<string[]> {
 }
 
 (async () => {
+    let issues: Issue[] = [];
     if (query) {
-        keys = await getKeysInJQL(query, config.jira);
-    }
-
-    if (keys.length > 0) {
-        const strings = await getTicketTimeStrings(keys);
-
-        if (!file) {
-            strings.forEach(line => {
-                console.log(line);
-            });
-        } else {
-            console.log(`Writing to ${file}`);
-            fs.writeFileSync(file, strings.join("\n"), { encoding: "utf-8" });
-            console.log(`Success!`);
-        }
+        issues = await Jira.JQL(query, config.jira, "changelog");
+    } else if (keys.length > 0) {
+        issues = await Jira.JQL(`key in (${keys.join(",")})`, config.jira, "changelog");
     } else {
         console.log(`
 run [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
@@ -97,5 +90,21 @@ Example: run --file=out.csv br-1 pay-1
 Example: run pay-4000
 `);
         process.exit(0);
+    }
+
+    if (Jira.issuesHaveChangelogs(issues)) {
+        const strings = await getIssueTimeStrings(issues);
+
+        if (!file) {
+            strings.forEach(line => {
+                console.log(line);
+            });
+        } else {
+            console.log(`Writing to ${file}`);
+            fs.writeFileSync(file, strings.join("\n"), { encoding: "utf-8" });
+            console.log(`Success!`);
+        }
+    } else {
+        console.error("Tickets were not fetched properly :/");
     }
 })();

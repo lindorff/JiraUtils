@@ -1,7 +1,8 @@
 {
     "jira": {
         "user": "theuser",
-        "pass": "mypassword!"
+        "pass": "mypassword!",
+        "url": "https://jira.example.com"
     },
     "statuses": [
         "To Do",

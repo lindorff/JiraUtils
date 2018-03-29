@@ -1,7 +1,8 @@
 {
-    "files.eol": "\n",
+    "files.eol": "\r\n",
     "editor.tabSize": 4,
     "prettier.tabWidth": 4,
     "prettier.printWidth": 120,
-    "files.insertFinalNewline": true
+    "files.insertFinalNewline": true,
+    "editor.formatOnSave": true
 }
