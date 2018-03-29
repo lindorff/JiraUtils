@@ -1,5 +1,5 @@
 {
-    "files.eol": "\r\n",
+    "files.eol": "\n",
     "editor.tabSize": 4,
     "prettier.tabWidth": 4,
     "prettier.printWidth": 120,
