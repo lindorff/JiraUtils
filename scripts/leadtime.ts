@@ -2,11 +2,21 @@ import { Jira } from "../lib/jira";
 import { Config, IssueTimings, Issue, HasChangelog } from "../lib/interfaces";
 import * as fs from "fs";
 import * as yargs from "yargs";
-const config = <Config>require("../config.json");
+const config = <Config & Config.Leadtime>Object.assign(
+    {},
+    require("../config.json"),
+    require("../config.leadtime.json")
+);
 const argv = yargs.argv;
 let keys = <string[]>(argv.query ? [] : argv._);
 const query = <string>(argv.query ? argv.query : null);
 const file = <string>(argv.file ? argv.file : null);
+
+namespace Config {
+    export interface Leadtime {
+        showSummary: boolean;
+    }
+}
 
 const inputStatuses = getInputStatuses();
 

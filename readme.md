@@ -23,12 +23,15 @@ Before running this the first time, run this command in the script's directory, 
 
     $> npm install
 
-Then you need to create have a `config.json` file where you give the JIRA credentials that should be used to retrieve the info, and the statuses that your report will use. You probably want to copy the example file as a template and modify it to your needs.
+Then you need to create `config.json` and `config.leadtime.json` files where you give the JIRA credentials that should be used to retrieve the info, and the statuses that your report will use. You probably want to copy the example file as a template and modify it to your needs.
 
     $> copy config.json.example config.json
+    $> copy config.leadtime.json.example config.leadtime.json
     $> notepad config.json
 
 In your statuses, you need to mark the ones you consider as "done" with an asterisk before the name (as in `config.json.example`). Otherwise the last given status is assumed as finished.
+
+If you set the "showSummary" setting to "true" in `config.leadtime.json`, you will get the summary text of the ticket into the result set as well.
 
 ## 3: Usage examples
 
@@ -47,7 +50,3 @@ For example:
 
     Key,Created,Finished,Idea,Gathering Requirements,Ready for development,In Development,To Approve,In Approval,Done,Archived,Invalid
     BR-1358,2017-5-17,2017-5-17,13157,0,3536031,55516,0,0,12537224,0,0
-
-## 4: Show summaries
-
-If you set the "showSummary" setting to "true" in `config.json`, you will get the summary of the ticket into the result set as well.

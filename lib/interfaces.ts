@@ -73,7 +73,6 @@ export interface JiraConfig {
 export interface Config {
     jira: JiraConfig;
     statuses: string[];
-    showSummary: boolean;
 }
 
 export interface IssueTimings {
