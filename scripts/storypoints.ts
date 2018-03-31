@@ -2,15 +2,41 @@ import { Jira } from "../lib/jira";
 import { Config, IssueTimings, Issue, HasChangelog } from "../lib/interfaces";
 import * as fs from "fs";
 import * as yargs from "yargs";
-const config = <Config>require("../config.json");
-const STORY_POINTS_CUSTOM_FIELD = "customfield_10005";
 import * as dateformat from "dateformat";
+const config = <Config & Config.Storypoints>Object.assign(
+    {},
+    require("../config.json"),
+    require("../config.storypoints.json")
+);
+
+namespace Config {
+    export interface Storypoints {
+        storyPoints: {
+            jqlName: string;
+            apiName: string;
+        };
+        project: string;
+        types: string[];
+        inProgressStatuses: string[];
+    }
+}
 
 const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
+const FINAL_STATUSES = config.statuses
+    .filter(status => status.indexOf("*") >= 0)
+    .map(status => status.toLowerCase())
+    .map(status => status.replace("*", ""))
+    .map(status => `"${status}"`);
+
+const IN_PROGRESS_STATUSES = config.inProgressStatuses.map(status => status.toLowerCase());
+
 (async () => {
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
-        'project = giit and type in (story,task,bug) and "Story Points" > 0 and status in (Completed, "Live in Production")',
+        `project = ${config.project} ` +
+            `and type in (${config.types.join(",")}) ` +
+            `and "${config.storyPoints.jqlName}" > 0 ` +
+            `and status in (${FINAL_STATUSES.join(",")})`,
         config.jira
     );
 
@@ -24,7 +50,7 @@ const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
     const storyPointsObj = {};
 
     issueTimings.forEach(issueTiming => {
-        const storyPoints = <number>issuesWithStoryPointsMap.get(issueTiming.key).fields[STORY_POINTS_CUSTOM_FIELD];
+        const storyPoints = <number>issuesWithStoryPointsMap.get(issueTiming.key).fields[config.storyPoints.apiName];
         let timings = storyPointsObj[storyPoints];
         if (!timings) {
             timings = [];
@@ -43,17 +69,7 @@ const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
             let millis = 0;
             Object.keys(timing.times).forEach(status => {
-                if (
-                    [
-                        "idea",
-                        "groomed",
-                        "to do",
-                        "completed",
-                        "live in production",
-                        "grooming",
-                        "gathering requirements"
-                    ].indexOf(status) == -1
-                ) {
+                if (IN_PROGRESS_STATUSES.indexOf(status) == -1) {
                     millis += timing.times[status];
                 }
             });
