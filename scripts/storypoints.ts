@@ -17,7 +17,7 @@ namespace Config {
         };
         project: string;
         types: string[];
-        inProgressStatuses: string[];
+        ignoreStatuses: string[];
     }
 }
 
@@ -29,7 +29,7 @@ const FINAL_STATUSES = config.statuses
     .map(status => status.replace("*", ""))
     .map(status => `"${status}"`);
 
-const IN_PROGRESS_STATUSES = config.inProgressStatuses.map(status => status.toLowerCase());
+const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase());
 
 (async () => {
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
@@ -69,7 +69,7 @@ const IN_PROGRESS_STATUSES = config.inProgressStatuses.map(status => status.toLo
 
             let millis = 0;
             Object.keys(timing.times).forEach(status => {
-                if (IN_PROGRESS_STATUSES.indexOf(status) == -1) {
+                if (IGNORE_STATUSES.indexOf(status) == -1) {
                     millis += timing.times[status];
                 }
             });
