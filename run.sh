@@ -9,6 +9,7 @@ else
     echo "No such script found. Try one of the following:"
     for filename in $SCRIPT_PATH/*.ts; do
         SCRIPT_NAME=$(basename "$filename")
-        echo "- $SCRIPT_NAME"
+        COMMAND_NAME="${SCRIPT_NAME%.*}"
+        echo "- $COMMAND_NAME"
     done
 fi
