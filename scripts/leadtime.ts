@@ -97,7 +97,7 @@ function getIssueTimeStrings<IssueWithChangelog extends Issue & HasChangelog>(is
         issues = await Jira.JQL(`key in (${keys.join(",")})`, config.jira, "changelog");
     } else {
         console.log(`
-run [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
+run leadtime [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
 
     --file=FILE_NAME
         Write output to a file instead of standard out.
