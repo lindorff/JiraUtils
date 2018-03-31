@@ -4,6 +4,9 @@ import * as fs from "fs";
 import * as yargs from "yargs";
 const config = <Config>require("../config.json");
 const STORY_POINTS_CUSTOM_FIELD = "customfield_10005";
+import * as dateformat from "dateformat";
+
+const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
 (async () => {
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
@@ -36,7 +39,7 @@ const STORY_POINTS_CUSTOM_FIELD = "customfield_10005";
         timings.forEach(timing => {
             const key = timing.key;
             const summary = `"${timing.summary.replace('"', '\\"')}"`;
-            const finished = timing.finished;
+            const finished = dateformat(timing.finished, DATE_FORMAT);
 
             let millis = 0;
             Object.keys(timing.times).forEach(status => {
