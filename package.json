@@ -27,6 +27,7 @@
         "mocha": "^3.4.1"
     },
     "scripts": {
+        "postinstall": "./node_modules/.bin/ts-node _postinstall.ts",
         "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.spec.ts"
     },
     "author": "Henrik Paul <henrik.paul@lindorff.com>",

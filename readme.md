@@ -23,30 +23,31 @@ Before running this the first time, run this command in the script's directory, 
 
     $> npm install
 
-Then you need to create `config.json` and `config.leadtime.json` files where you give the JIRA credentials that should be used to retrieve the info, and the statuses that your report will use. You probably want to copy the example file as a template and modify it to your needs.
+Check the `config.*.json` files in the directory for all configurations needed.
 
-    $> copy config.json.example config.json
-    $> copy config.leadtime.json.example config.leadtime.json
-    $> notepad config.json
+In your statuses, you can mark the statuses you consider as "done" with an asterisk before the name (as in `config.json.example`). If none given, last given status is assumed as finished.
 
-In your statuses, you need to mark the ones you consider as "done" with an asterisk before the name (as in `config.json.example`). Otherwise the last given status is assumed as finished.
+### Config.json
 
-If you set the "showSummary" setting to "true" in `config.leadtime.json`, you will get the summary text of the ticket into the result set as well.
+| Config      | Desc                                                                                                     |
+| ----------- | -------------------------------------------------------------------------------------------------------- |
+| `jira.user` | The user to use when querying Jira.                                                                      |
+| `jira.pass` | The password to use when querying Jira.                                                                  |
+| `jira.url`  | The http/https address to Jira.                                                                          |
+| `statuses`  | The statuses that you are interested in. Mark the ones you consider as final with an asterisk (i.e. `*`) |
 
-## 3: Usage examples
+### Config.leadtime.json
 
-    $> run PAY-1 BR-1
-    $> run --query="project in (pay,br) AND status = 'done' AND type in (bug,task,story)"
+| Config        | Desc                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| `showSummary` | Setting to "true" will get you the summary text of the ticket into the result set as well. |
 
-_Run the script without any arguments to see all available options_
+### Config.storypoints.json
 
-You can also specify the `--file` flag, and you'll get the results written in the given file. Without the flag, you'll get the results in the command window. So, like this:
-
-    $> run --file=out.csv PAY-1
-
-The output format for each line is `$KEY, $CREATION_DATE, $DONE_DATE, $STATUS_TIMES`, where `$STATUS_TIMES` is a comma-separated list of milliseconds in each of the statuses.
-
-For example:
-
-    Key,Created,Finished,Idea,Gathering Requirements,Ready for development,In Development,To Approve,In Approval,Done,Archived,Invalid
-    BR-1358,2017-5-17,2017-5-17,13157,0,3536031,55516,0,0,12537224,0,0
+| Config                | Desc                                                             |
+| --------------------- | ---------------------------------------------------------------- |
+| `storyPoints.jqlName` | The name of the field, as you would search for them with JQL     |
+| `storyPoints.apiName` | The name of the field as it is returned via the REST API         |
+| `project`             | The Jira project name (for a ticket like `ABC-1`, this is `ABC`) |
+| `types`               | The types of issues that you are interested in                   |
+| `ignoreStatuses`      | Which statuses not to count towards the in-progress time         |
