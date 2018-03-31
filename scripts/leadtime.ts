@@ -42,6 +42,16 @@ function getInputStatuses(): string[] {
     }
 }
 
+function showSummary(): boolean {
+    if (argv.showSummary) {
+        return true;
+    } else if (argv.hideSummary) {
+        return false;
+    } else {
+        return config.showSummary;
+    }
+}
+
 function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
     return statuses
         .map(s => s.toLowerCase())
@@ -54,7 +64,7 @@ function prettyPrintDate(date: Date): string {
 }
 
 function getIssueTimeStrings<IssueWithChangelog extends Issue & HasChangelog>(issues: IssueWithChangelog[]): string[] {
-    const summary = config.showSummary ? "Summary," : "";
+    const summary = showSummary() ? "Summary," : "";
     const heading = [
         `Key,Story Points,${summary}Created,Finished,${inputStatuses.map(s => s.replace("*", "")).join(",")}`
     ];
@@ -63,7 +73,7 @@ function getIssueTimeStrings<IssueWithChangelog extends Issue & HasChangelog>(is
 
     const lines = infoResults.map(info => {
         const finished = info.finished ? prettyPrintDate(info.finished) : "";
-        const summary = config.showSummary ? `"${info.summary.replace('"', '\\"')}",` : "";
+        const summary = showSummary() ? `"${info.summary.replace('"', '\\"')}",` : "";
         return (
             info.key +
             "," +
@@ -94,6 +104,9 @@ run [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
     --statuses=STATUS_1[,STATUS_2[...]]
         Override the statuses from config.json with a comma separated list.
         e.g. --statuses="foo,bar baz,*done"
+    --showSummary
+    --hideSummary
+        Override the setting from config.json
 
 Example: run --file=out.csv --query="project in (br,pay) and type in (bug,task,story) and status = done
 Example: run --file=out.csv br-1 pay-1
