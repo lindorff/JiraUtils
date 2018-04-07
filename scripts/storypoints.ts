@@ -21,6 +21,13 @@ namespace Config {
     }
 }
 
+if (!yargs.argv.output) {
+    console.log("Use with --output=[filename]\n");
+    process.exit(0);
+}
+
+const FILENAME: string = yargs.argv.output;
+
 const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
 const FINAL_STATUSES = config.statuses
@@ -78,5 +85,5 @@ const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase()
         });
     });
 
-    fs.writeFileSync("result.csv", buffer, { encoding: "utf-8" });
+    fs.writeFileSync(FILENAME, buffer, { encoding: "utf-8" });
 })();
