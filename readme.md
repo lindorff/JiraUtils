@@ -36,6 +36,12 @@ In your statuses, you can mark the statuses you consider as "done" with an aster
 | `jira.url`  | The http/https address to Jira.                                                                          |
 | `statuses`  | The statuses that you are interested in. Mark the ones you consider as final with an asterisk (i.e. `*`) |
 
+### Config.donetickets.json
+
+| Config    | Desc                                                             |
+| --------- | ---------------------------------------------------------------- |
+| `project` | The Jira project name (for a ticket like `ABC-1`, this is `ABC`) |
+
 ### Config.leadtime.json
 
 | Config        | Desc                                                                                       |
