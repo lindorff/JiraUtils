@@ -1,9 +1,8 @@
-/// <reference path="../node_modules/@types/mocha/index.d.ts" />
-import * as os from "os";
 import * as path from "path";
 import * as fs from "fs";
-import { exec, ChildProcess, ExecOptionsWithStringEncoding } from "child_process";
+import { exec, ExecOptionsWithStringEncoding } from "child_process";
 import { expect, assert } from "chai";
+import "mocha";
 
 interface ExecOutput {
     stderr: string;

@@ -1,10 +1,10 @@
-import * as request from "request-promise-native";
-import * as dateFormat from "dateformat";
 import { Issue, HasChangelog, HistoryItem, IssueQueryResponse, JiraConfig, IssueTimings, History } from "./interfaces";
+import request from "request-promise-native";
+import dateFormat from "dateformat";
 
 async function getIssueDetails(key: string, jira: JiraConfig): Promise<Issue & HasChangelog> {
-    const issueDetails = <Issue & HasChangelog>JSON.parse(
-        await request(`${jira.url}/rest/api/2/issue/${key}?expand=changelog`, { auth: jira })
+    const issueDetails = <Issue & HasChangelog>(
+        JSON.parse(await request(`${jira.url}/rest/api/2/issue/${key}?expand=changelog`, { auth: jira }))
     );
 
     if (issueDetails.changelog.maxResults < issueDetails.changelog.total) {

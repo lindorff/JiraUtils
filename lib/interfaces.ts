@@ -70,11 +70,6 @@ export interface JiraConfig {
     url: string;
 }
 
-export interface Config {
-    jira: JiraConfig;
-    statuses: string[];
-}
-
 export interface IssueTimings {
     key: string;
     summary: string;

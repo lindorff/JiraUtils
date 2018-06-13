@@ -4,5 +4,6 @@
     "prettier.tabWidth": 4,
     "prettier.printWidth": 120,
     "files.insertFinalNewline": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "typescript.tsdk": "./node_modules/typescript/lib"
 }

@@ -1,19 +1,9 @@
 import { Jira } from "../lib/jira";
-import { Config } from "../lib/interfaces";
-import * as fs from "fs";
-import * as yargs from "yargs";
+import yargs from "yargs";
+import configBase from "../config.json";
+import configDoneTickets from "../config.donetickets.json";
 
-namespace Config {
-    export interface DoneTickets {
-        project: string;
-    }
-}
-
-const config = <Config & Config.DoneTickets>Object.assign(
-    {},
-    require("../config.json"),
-    require("../config.donetickets.json")
-);
+const config = Object.assign({}, configBase, configDoneTickets);
 
 const argv = yargs.argv;
 

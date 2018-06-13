@@ -1,25 +1,12 @@
 import { Jira } from "../lib/jira";
-import { Config, IssueTimings, Issue, HasChangelog } from "../lib/interfaces";
+import { Issue } from "../lib/interfaces";
 import * as fs from "fs";
-import * as yargs from "yargs";
-import * as dateformat from "dateformat";
-const config = <Config & Config.Storypoints>Object.assign(
-    {},
-    require("../config.json"),
-    require("../config.storypoints.json")
-);
+import yargs from "yargs";
+import dateformat from "dateformat";
+import configBase from "../config.json";
+import configStoryPoints from "../config.storypoints.json";
 
-namespace Config {
-    export interface Storypoints {
-        storyPoints: {
-            jqlName: string;
-            apiName: string;
-        };
-        project: string;
-        types: string[];
-        ignoreStatuses: string[];
-    }
-}
+const config = Object.assign({}, configBase, configStoryPoints);
 
 if (!yargs.argv.output) {
     console.log("Use with --output=[filename]\n");
