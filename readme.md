@@ -57,3 +57,7 @@ In your statuses, you can mark the statuses you consider as "done" with an aster
 | `project`             | The Jira project name (for a ticket like `ABC-1`, this is `ABC`) |
 | `types`               | The types of issues that you are interested in                   |
 | `ignoreStatuses`      | Which statuses not to count towards the in-progress time         |
+
+## 3: Running
+
+Just type `run` and see further instructions.
