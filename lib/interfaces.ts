@@ -80,8 +80,16 @@ export interface IssueTimings {
     };
 }
 
-export interface Config {
-    statuses: string[];
+export interface ConfigJson extends ConfigBase {
+    statuses: (string | { name: string; isDone?: boolean })[];
+}
+
+export interface Config extends ConfigBase {
+    statuses: { name: string; isDone?: boolean }[];
+}
+
+interface ConfigBase {
+    statuses: any;
     scripts: {
         donetickets: {};
         leadtime: { showSummary: boolean };

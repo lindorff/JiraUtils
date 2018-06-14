@@ -15,10 +15,8 @@ const script: Script = async (config: Config, argv: Argv) => {
     const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
     const FINAL_STATUSES = config.statuses
-        .filter(status => status.indexOf("*") >= 0)
-        .map(status => status.toLowerCase())
-        .map(status => status.replace("*", ""))
-        .map(status => `"${status}"`);
+        .filter(status => status.isDone)
+        .map(status => `"${status.name.toLowerCase()}"`);
 
     const IGNORE_STATUSES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
 

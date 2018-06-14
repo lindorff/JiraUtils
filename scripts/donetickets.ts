@@ -4,7 +4,7 @@ import jiraConfig from "../config.jira.json";
 
 const script: Script = async (config: Config, argv: Argv) => {
     const project = config.project;
-    const completed = config.statuses.filter(status => status.startsWith("*")).map(status => status.substr(1).trim());
+    const completed = config.statuses.filter(status => status.isDone).map(status => status.name);
 
     const errors = [];
 

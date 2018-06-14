@@ -1,7 +1,8 @@
 import yargs from "yargs";
 import fs from "fs";
 import path from "path";
-import { Config, Script, Argv } from "./lib/interfaces";
+import { Config, Script, Argv, ConfigJson } from "./lib/interfaces";
+import { isString } from "util";
 const argv: Argv = yargs.argv;
 const PROJECT_CONF_REGEX = /^config\.project\.(.*)\.json$/;
 
@@ -31,6 +32,12 @@ function getSanitizedArgv(argv: Argv) {
     return sanitizedArgv;
 }
 
+function convertConfig(configJson: ConfigJson): Config {
+    const config = JSON.parse(JSON.stringify(configJson));
+    config.statuses = configJson.statuses.map(name => (isString(name) ? { name } : name));
+    return config;
+}
+
 (async () => {
     const scriptName = argv._[0];
     const projectName = argv.project;
@@ -46,7 +53,7 @@ function getSanitizedArgv(argv: Argv) {
 
     let config: Config;
     try {
-        config = <Config>await import(`./config.project.${projectName}.json`);
+        config = convertConfig(await import(`./config.project.${projectName}.json`));
     } catch (e) {
         if (e instanceof Error && e.message.startsWith("Cannot find module")) {
             console.error("No such project: " + projectName);

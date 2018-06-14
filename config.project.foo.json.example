@@ -1,6 +1,11 @@
 {
     "$schema": "./_schema.project.json",
-    "statuses": ["*Completed", "*Live in production"],
+    "project": "ABC",
+    "statuses": [
+        "In Progress", 
+        { "name": "Completed", "isDone": true }, 
+        { "name": "Live in production" }
+    ],
     "scripts": {
         "donetickets": {},
         "leadtime": { "showSummary": false },
@@ -12,6 +17,5 @@
             "types": ["story", "task", "bug"],
             "ignoreStatuses": ["to do", "completed"]
         }
-    },
-    "project": "ABC"
+    }
 }

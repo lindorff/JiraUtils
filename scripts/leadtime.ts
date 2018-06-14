@@ -28,7 +28,7 @@ const script: Script = async (config: Config, argv: Argv) => {
         if (argv.statuses) {
             return argv.statuses.split(",");
         } else {
-            return config.statuses;
+            return config.statuses.map(status => status.name);
         }
     }
 
