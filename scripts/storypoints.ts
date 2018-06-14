@@ -23,7 +23,7 @@ const script: Script = async (config: Config, argv: Argv) => {
     const IGNORE_STATUSES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
 
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
-        `project = ${config.scripts.storypoints.project} ` +
+        `project = ${config.project} ` +
             `and type in (${config.scripts.storypoints.types.join(",")}) ` +
             `and "${config.scripts.storypoints.propertyName.jqlName}" > 0 ` +
             `and status in (${FINAL_STATUSES.join(",")})`,

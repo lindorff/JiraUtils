@@ -83,18 +83,18 @@ export interface IssueTimings {
 export interface Config {
     statuses: string[];
     scripts: {
-        donetickets: { project: string };
+        donetickets: {};
         leadtime: { showSummary: boolean };
         storypoints: {
             propertyName: {
                 jqlName: string;
                 apiName: string;
             };
-            project: string;
             types: string[];
             ignoreStatuses: string[];
         };
     };
+    project: string;
 }
 
 export interface Argv {

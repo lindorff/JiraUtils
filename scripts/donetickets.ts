@@ -3,7 +3,7 @@ import { Config, Argv, Script } from "../lib/interfaces";
 import jiraConfig from "../config.jira.json";
 
 const script: Script = async (config: Config, argv: Argv) => {
-    const project = config.scripts.donetickets.project;
+    const project = config.project;
     const completed = config.statuses.filter(status => status.startsWith("*")).map(status => status.substr(1).trim());
 
     const errors = [];

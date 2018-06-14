@@ -21,8 +21,7 @@
                 },
                 "donetickets": {
                     "type": "object",
-                    "properties": { "project": { "type": "string" } },
-                    "required": ["project"]
+                    "properties": {}
                 },
                 "storypoints": {
                     "type": "object",
@@ -35,7 +34,6 @@
                             },
                             "required": ["jqlName", "apiName"]
                         },
-                        "project": { "type": "string" },
                         "types": { "type": "array", "items": { "type": "string" } },
                         "ignoreStatuses": { "type": "array", "items": { "type": "string" } }
                     }
@@ -48,5 +46,5 @@
             "type": "string"
         }
     },
-    "required": ["statuses", "scripts"]
+    "required": ["statuses", "scripts", "project"]
 }
