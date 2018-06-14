@@ -1,0 +1,6 @@
+{
+    "$schema": "./_schema.jira.json",
+    "user": "user",
+    "pass": "pass",
+    "url": "https://jira.example.com"
+}

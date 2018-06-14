@@ -1,37 +1,38 @@
 import { Jira } from "../lib/jira";
-import { Issue } from "../lib/interfaces";
+import { Issue, Config } from "../lib/interfaces";
 import * as fs from "fs";
 import yargs from "yargs";
 import dateformat from "dateformat";
-import configBase from "../config.json";
-import configStoryPoints from "../config.storypoints.json";
-
-const config = Object.assign({}, configBase, configStoryPoints);
+import jiraConfig from "../config.jira.json";
 
 if (!yargs.argv.output) {
     console.log("Use with --output=[filename]\n");
     process.exit(0);
 }
 
-const FILENAME: string = yargs.argv.output;
+export = async () => {
+    const projectName = "lis";
+    const configFile = `../config.project.${projectName}.json`;
+    const config = <Config>await import(configFile);
 
-const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
+    const FILENAME: string = yargs.argv.output;
 
-const FINAL_STATUSES = config.statuses
-    .filter(status => status.indexOf("*") >= 0)
-    .map(status => status.toLowerCase())
-    .map(status => status.replace("*", ""))
-    .map(status => `"${status}"`);
+    const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
-const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase());
+    const FINAL_STATUSES = config.statuses
+        .filter(status => status.indexOf("*") >= 0)
+        .map(status => status.toLowerCase())
+        .map(status => status.replace("*", ""))
+        .map(status => `"${status}"`);
 
-(async () => {
+    const IGNORE_STATUSES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
+
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
-        `project = ${config.project} ` +
-            `and type in (${config.types.join(",")}) ` +
-            `and "${config.storyPoints.jqlName}" > 0 ` +
+        `project = ${config.scripts.storypoints.project} ` +
+            `and type in (${config.scripts.storypoints.types.join(",")}) ` +
+            `and "${config.scripts.storypoints.propertyName.jqlName}" > 0 ` +
             `and status in (${FINAL_STATUSES.join(",")})`,
-        config.jira
+        jiraConfig
     );
 
     const issuesWithStoryPointsMap = new Map<string, Issue>();
@@ -44,7 +45,9 @@ const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase()
     const storyPointsObj = {};
 
     issueTimings.forEach(issueTiming => {
-        const storyPoints = <number>issuesWithStoryPointsMap.get(issueTiming.key).fields[config.storyPoints.apiName];
+        const issue = issuesWithStoryPointsMap.get(issueTiming.key);
+        const storyPoints = <number>issue.fields[config.scripts.storypoints.propertyName.apiName];
+
         let timings = storyPointsObj[storyPoints];
         if (!timings) {
             timings = [];
@@ -73,4 +76,4 @@ const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase()
     });
 
     fs.writeFileSync(FILENAME, buffer, { encoding: "utf-8" });
-})();
+};

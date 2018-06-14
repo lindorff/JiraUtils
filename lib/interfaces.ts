@@ -79,3 +79,24 @@ export interface IssueTimings {
         [statusName: string]: number;
     };
 }
+
+export interface Config {
+    statuses: string[];
+    scripts: {
+        donetickets: { project: string };
+        leadtime: { showSummary: boolean };
+        storypoints: {
+            propertyName: {
+                jqlName: string;
+                apiName: string;
+            };
+            project: string;
+            types: string[];
+            ignoreStatuses: string[];
+        };
+    };
+}
+
+export interface Script {
+    run(config: Config): void;
+}

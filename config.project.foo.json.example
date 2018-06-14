@@ -1,0 +1,17 @@
+{
+    "$schema": "./_schema.project.json",
+    "statuses": ["*Completed", "*Live in production"],
+    "scripts": {
+        "donetickets": { "project": "ABC" },
+        "leadtime": { "showSummary": false },
+        "storypoints": {
+            "propertyName": {
+                "jqlName": "Story Points",
+                "apiName": "customfield_10005"
+            },
+            "project": "ABC",
+            "types": ["story", "task", "bug"],
+            "ignoreStatuses": ["to do", "completed"]
+        }
+    }
+}

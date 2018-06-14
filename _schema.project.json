@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "Base Config",
+    "description": "The format for configuring this script",
+    "type": "object",
+    "properties": {
+        "statuses": {
+            "description": "The JIRA statuses that will be used to list things.",
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+        },
+        "scripts": {
+            "description": "Script-specific configurations",
+            "type": "object",
+            "properties": {
+                "leadtime": {
+                    "type": "object",
+                    "properties": { "showSummary": { "type": "boolean" } },
+                    "required": ["showSummary"]
+                },
+                "donetickets": {
+                    "type": "object",
+                    "properties": { "project": { "type": "string" } },
+                    "required": ["project"]
+                },
+                "storypoints": {
+                    "type": "object",
+                    "properties": {
+                        "propertyName": {
+                            "type": "object",
+                            "properties": {
+                                "jqlName": { "type": "string" },
+                                "apiName": { "type": "string" }
+                            },
+                            "required": ["jqlName", "apiName"]
+                        },
+                        "project": { "type": "string" },
+                        "types": { "type": "array", "items": { "type": "string" } },
+                        "ignoreStatuses": { "type": "array", "items": { "type": "string" } }
+                    }
+                }
+            },
+            "required": ["leadtime", "donetickets", "storypoints"]
+        },
+        "project": {
+            "description": "The JIRA project name",
+            "type": "string"
+        }
+    },
+    "required": ["statuses", "scripts"]
+}
