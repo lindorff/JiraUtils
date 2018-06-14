@@ -1,21 +1,16 @@
 import { Jira } from "../lib/jira";
-import { Issue, Config } from "../lib/interfaces";
+import { Issue, Config, Argv, Script } from "../lib/interfaces";
 import * as fs from "fs";
-import yargs from "yargs";
 import dateformat from "dateformat";
 import jiraConfig from "../config.jira.json";
 
-if (!yargs.argv.output) {
-    console.log("Use with --output=[filename]\n");
-    process.exit(0);
-}
+const script: Script = async (config: Config, argv: Argv) => {
+    if (!argv.output) {
+        console.log("Use with --output=[filename]\n");
+        process.exit(0);
+    }
 
-export = async () => {
-    const projectName = "lis";
-    const configFile = `../config.project.${projectName}.json`;
-    const config = <Config>await import(configFile);
-
-    const FILENAME: string = yargs.argv.output;
+    const FILENAME: string = argv.output;
 
     const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
@@ -77,3 +72,5 @@ export = async () => {
 
     fs.writeFileSync(FILENAME, buffer, { encoding: "utf-8" });
 };
+
+export = script;

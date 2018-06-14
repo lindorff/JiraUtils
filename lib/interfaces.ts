@@ -97,6 +97,10 @@ export interface Config {
     };
 }
 
-export interface Script {
-    run(config: Config): void;
+export interface Argv {
+    _: string[];
+    $0: string;
+    [arg: string]: any;
 }
+
+export type Script = (config: Config, argv: Argv) => Promise<any>;

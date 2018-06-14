@@ -1,11 +1,8 @@
 import { Jira } from "../lib/jira";
-import { Config } from "../lib/interfaces";
-import yargs from "yargs";
+import { Config, Argv, Script } from "../lib/interfaces";
 import jiraConfig from "../config.jira.json";
 
-const argv = yargs.argv;
-
-export = async (config: Config) => {
+const script: Script = async (config: Config, argv: Argv) => {
     const project = config.scripts.donetickets.project;
     const completed = config.statuses.filter(status => status.startsWith("*")).map(status => status.substr(1).trim());
 
@@ -40,3 +37,5 @@ export = async (config: Config) => {
     console.log(`${jiraConfig.url}/issues/?jql=${jql}`);
     process.exit(0);
 };
+
+export = script;

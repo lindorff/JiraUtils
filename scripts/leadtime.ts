@@ -1,15 +1,9 @@
 import { Jira } from "../lib/jira";
-import { Issue, HasChangelog, Config } from "../lib/interfaces";
+import { Issue, HasChangelog, Config, Argv, Script } from "../lib/interfaces";
 import * as fs from "fs";
-import yargs from "yargs";
 import jiraConfig from "../config.jira.json";
 
-export = async () => {
-    const projectName = "lis";
-    const configFile = `../config.project.${projectName}.json`;
-    const config = <Config>await import(configFile);
-
-    const argv = yargs.argv;
+const script: Script = async (config: Config, argv: Argv) => {
     let keys = <string[]>(argv.query ? [] : argv._);
     const query = <string>(argv.query ? argv.query : null);
     const file = <string>(argv.file ? argv.file : null);
@@ -128,3 +122,5 @@ export = async () => {
         console.error("Tickets were not fetched properly :/");
     }
 };
+
+export = script;

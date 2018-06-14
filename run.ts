@@ -1,8 +1,8 @@
 import yargs from "yargs";
 import fs from "fs";
 import path from "path";
-import { Config, Script } from "./lib/interfaces";
-const argv = yargs.argv;
+import { Config, Script, Argv } from "./lib/interfaces";
+const argv: Argv = yargs.argv;
 const PROJECT_CONF_REGEX = /^config\.project\.(.*)\.json$/;
 
 function readdir(path = __dirname): Promise<string[]> {
@@ -14,8 +14,25 @@ function readdir(path = __dirname): Promise<string[]> {
     });
 }
 
+async function getProjectNames() {
+    return (await readdir())
+        .filter(filename => filename.match(PROJECT_CONF_REGEX) !== null)
+        .map(filename => path.basename(filename))
+        .map(basename => basename.match(PROJECT_CONF_REGEX)[1]);
+}
+async function getScriptNames() {
+    return (await readdir(__dirname + "/scripts")).map(filename => path.basename(filename, path.extname(filename)));
+}
+
+function getSanitizedArgv(argv: Argv) {
+    const sanitizedArgv: Argv = JSON.parse(JSON.stringify(argv));
+    sanitizedArgv._.shift();
+    delete sanitizedArgv.project;
+    return sanitizedArgv;
+}
+
 (async () => {
-    const scriptName = argv["_"][0];
+    const scriptName = argv._[0];
     const projectName = argv.project;
 
     const errors: string[] = [];
@@ -31,27 +48,23 @@ function readdir(path = __dirname): Promise<string[]> {
     try {
         config = <Config>await import(`./config.project.${projectName}.json`);
     } catch (e) {
-        const projectNames = (await readdir())
-            .filter(filename => filename.match(PROJECT_CONF_REGEX) !== null)
-            .map(filename => path.basename(filename))
-            .map(basename => basename.match(PROJECT_CONF_REGEX)[1]);
-
-        console.error("No such project: " + projectName);
-        console.error("Try one of the following:");
-        console.error(...projectNames);
-        process.exit(1);
+        if (e instanceof Error && e.message.startsWith("Cannot find module")) {
+            console.error("No such project: " + projectName);
+            console.error("Try one of the following:");
+            (await getProjectNames()).forEach(name => console.error(name));
+            process.exit(1);
+        } else throw e;
     }
 
     try {
-        const mod = await import(`./scripts/${scriptName}`);
-        await mod.default(config);
+        const mod: { default: Script } = await import(`./scripts/${scriptName}`);
+        await mod.default(config, getSanitizedArgv(argv));
     } catch (e) {
         if (e instanceof Error && e.message.startsWith("Cannot find module")) {
             console.log(e.message);
             console.log("Try one of these:");
-            (await readdir(__dirname + "/scripts"))
-                .map(filename => path.basename(filename, path.extname(filename)))
-                .forEach(file => console.log(`- ${file}`));
+            (await getScriptNames()).forEach(file => console.log(`- ${file}`));
+            process.exit(1);
         } else throw e;
     }
 })();
