@@ -47,7 +47,8 @@
                         },
                         "types": { "type": "array", "items": { "type": "string" } },
                         "ignoreStatuses": { "type": "array", "items": { "type": "string" } }
-                    }
+                    },
+                    "required": ["propertyName", "types", "ignoreStatuses"]
                 }
             },
             "required": ["leadtime", "donetickets", "storypoints"]
