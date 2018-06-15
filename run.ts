@@ -27,7 +27,8 @@ async function getScriptNames() {
 
 function getSanitizedArgv(argv: Argv) {
     const sanitizedArgv: Argv = JSON.parse(JSON.stringify(argv));
-    sanitizedArgv._.shift();
+    const script = sanitizedArgv._.shift();
+    sanitizedArgv.$0 = script;
     delete sanitizedArgv.project;
     return sanitizedArgv;
 }
