@@ -13,6 +13,10 @@
     * [Donetickets](#donetickets)
     * [Leadtime](#leadtime)
     * [Storypoints](#storypoints)
+* [Script Descriptions](#script-descriptions)
+  * [Donetickets](#donetickets2)
+  * [Leadtime](#leadtime2)
+  * [Storypoints](#storypoints2)
 
 This script scrapes the Lindorff JIRA to get times on how long a ticket has been in any particular status.
 
@@ -107,3 +111,25 @@ Currently no separate configuration, so the configuration object is left empty (
 | `propertyName.apiName` | The name of the field as it is returned via the REST API     |
 | `types`                | The types of issues that you are interested in               |
 | `ignoreStatuses`       | Which statuses not to count towards the in-progress time     |
+
+## Script Descriptions
+
+The description for each script is below:
+
+### Donetickets
+
+With `donetickets` you are able to see which issues actually have become done, and stayed done, in a span of some days.
+
+JIRA _does_ provide a `resolutionDate` field, but it is common to find workflows misconfigured, and thus I have found it to be unreliable. Sometimes the resolution is never set, or it is not cleared when a ticket is taken back under work.
+
+Therefore, this script tracks the statuses, and determines whether a ticket has entered, and remained, in any of the given `isDone` statuses during the given timeframe.
+
+### Leadtime
+
+With `leadtime` you can see how many milliseconds issues have been in each of the statuses you are interested in.
+
+### Storypoints
+
+With `storypoints` you can see how your storypoints correlate with the actual time spent under development. 
+
+After all, the theory with story points is that they should somehow convert into time. Thus, a 5-pointer take roughly 5x as long as a 1-pointer. This can be interesting feedback to the team about their estimation behavior. Even more interesting is to see how the relationships of various points behave in different windows of time of a team's lifetime: "Are we more accurate in our estimations than a year ago? Why? Why not?"
