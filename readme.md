@@ -13,51 +13,72 @@ You can check if you have it installed by opening the command prompt (press <kbd
     $> npm --version
     4.2.0
 
+The exact version does not matter, as long as it's 4.2.0 or greater.
+
 ## 1: Download the script
 
 Download [the latest ZIP file](https://github.com/lindorff/JiraLead/archive/master.zip) from [GitHub](https://github.com/lindorff/JiraLead), and unpack it somewhere you remember (such as `c:\jiralead\`)
 
 ## 2: Installation
 
-Before running this the first time, run this command in the script's directory, to download all kinds of stuff
+Before running this for the first time, run this command in the script's directory, to download all kinds of stuff
 
     $> npm install
 
 Check the `config.*.json` files in the directory for all configurations needed.
 
-In your statuses, you can mark the statuses you consider as "done" with an asterisk before the name (as in `config.json.example`). If none given, last given status is assumed as finished.
+### config.jira.json
 
-### Config.json
+This file contains all of the information that will be used to connect to your JIRA server.
 
-| Config      | Desc                                                                                                     |
-| ----------- | -------------------------------------------------------------------------------------------------------- |
-| `jira.user` | The user to use when querying Jira.                                                                      |
-| `jira.pass` | The password to use when querying Jira.                                                                  |
-| `jira.url`  | The http/https address to Jira.                                                                          |
-| `statuses`  | The statuses that you are interested in. Mark the ones you consider as final with an asterisk (i.e. `*`) |
+| Config | Desc                                    |
+| ------ | --------------------------------------- |
+| `user` | The user to use when querying Jira.     |
+| `pass` | The password to use when querying Jira. |
+| `url`  | The http/https address to Jira.         |
 
-### Config.donetickets.json
+### Config.project.*.json
 
-| Config    | Desc                                                             |
-| --------- | ---------------------------------------------------------------- |
-| `project` | The Jira project name (for a ticket like `ABC-1`, this is `ABC`) |
+You need to create one of these files per JIRA project and/or workflow you're interested in. You will then use it when running the script; e.g. if you have a file called `config.project.myproject.json`, then you would use that configuration by running the script with
 
-### Config.leadtime.json
+    $ run --project myproject <script>
+
+| Config     | Desc                                                                    |
+| ---------- | ----------------------------------------------------------------------- |
+| `statuses` | A list of [statuses](#status-json-structure) that you are interested in |
+| `project`  | The Jira project name (for a ticket like `ABC-1`, this is `ABC`)        |
+| `scripts`  | Configuration for various scripts.                                      |
+
+### Status JSON Structure
+
+The `statuses` configuration is an array of two things: Either a `string` that is the name of the status, or an `object` with the following structure:
+
+| Key      | Type      | Desc                                                                                               |
+| -------- | --------- | -------------------------------------------------------------------------------------------------- |
+| `name`   | `string`  | The name of the status                                                                             |
+| `isDone` | `boolean` | (**optional**, default `false`) Whether this status should be considered as the issue being "done" |
+
+Each `string` in the `statuses` configuration array is considered as being a "not-done" status.
+
+### Scripts
+
+There are currently three supported scripts. Each have their own configuration section.
+
+#### Donetickets
+
+Currently no separate configuration, so the configuration object is left empty ("`{}`")
+
+#### Leadtime
 
 | Config        | Desc                                                                                       |
 | ------------- | ------------------------------------------------------------------------------------------ |
 | `showSummary` | Setting to "true" will get you the summary text of the ticket into the result set as well. |
 
-### Config.storypoints.json
+### Storypoints
 
-| Config                | Desc                                                             |
-| --------------------- | ---------------------------------------------------------------- |
-| `storyPoints.jqlName` | The name of the field, as you would search for them with JQL     |
-| `storyPoints.apiName` | The name of the field as it is returned via the REST API         |
-| `project`             | The Jira project name (for a ticket like `ABC-1`, this is `ABC`) |
-| `types`               | The types of issues that you are interested in                   |
-| `ignoreStatuses`      | Which statuses not to count towards the in-progress time         |
-
-## 3: Running
-
-Just type `run` and see further instructions.
+| Config                 | Desc                                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| `propertyName.jqlName` | The name of the field, as you would search for them with JQL |
+| `propertyName.apiName` | The name of the field as it is returned via the REST API     |
+| `types`                | The types of issues that you are interested in               |
+| `ignoreStatuses`       | Which statuses not to count towards the in-progress time     |
