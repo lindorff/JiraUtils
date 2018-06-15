@@ -46,7 +46,8 @@
                             "required": ["jqlName", "apiName"]
                         },
                         "types": { "type": "array", "items": { "type": "string" } },
-                        "ignoreStatuses": { "type": "array", "items": { "type": "string" } }
+                        "ignoreStatuses": { "type": "array", "items": { "type": "string" } },
+                        "output": { "type": "string" }
                     },
                     "required": ["propertyName", "types", "ignoreStatuses"]
                 }

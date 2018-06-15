@@ -15,7 +15,8 @@
                 "apiName": "customfield_10005"
             },
             "types": ["story", "task", "bug"],
-            "ignoreStatuses": ["to do", "completed"]
+            "ignoreStatuses": ["to do", "completed"],
+            "output": "out.csv"
         }
     }
 }

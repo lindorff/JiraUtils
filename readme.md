@@ -105,12 +105,13 @@ Currently no separate configuration, so the configuration object is left empty (
 
 #### Storypoints
 
-| Config                 | Desc                                                         |
-| ---------------------- | ------------------------------------------------------------ |
-| `propertyName.jqlName` | The name of the field, as you would search for them with JQL |
-| `propertyName.apiName` | The name of the field as it is returned via the REST API     |
-| `types`                | The types of issues that you are interested in               |
-| `ignoreStatuses`       | Which statuses not to count towards the in-progress time     |
+| Config                 | Desc                                                                                                       |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `propertyName.jqlName` | The name of the field, as you would search for them with JQL                                               |
+| `propertyName.apiName` | The name of the field as it is returned via the REST API                                                   |
+| `types`                | The types of issues that you are interested in                                                             |
+| `ignoreStatuses`       | Which statuses not to count towards the in-progress time                                                   |
+| `output`               | The file where to write the resulting CSV. This can be overridden with a `--output` command-line parameter |
 
 ## Script Descriptions
 

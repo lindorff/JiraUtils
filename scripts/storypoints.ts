@@ -5,12 +5,23 @@ import dateformat from "dateformat";
 import jiraConfig from "../config.jira.json";
 
 const script: Script = async (config: Config, argv: Argv) => {
-    if (!argv.output) {
-        console.log("Use with --output=[filename]\n");
-        process.exit(0);
+    function getOutputFileName(): string {
+        const fromArgv = argv.output;
+        const fromConfig = config.scripts.storypoints.output;
+
+        if (fromArgv) {
+            return fromArgv;
+        } else if (fromConfig) {
+            return fromConfig;
+        } else {
+            console.error("An output file name is required");
+            console.error("Either define the `output` in config.project.*.json, or give it as an --output parameter");
+            process.exit(1);
+        }
     }
 
-    const FILENAME: string = argv.output;
+    // let's try to get the output filename, and show an error if it's not configured.
+    const FILENAME: string = getOutputFileName();
 
     const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 

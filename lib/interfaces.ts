@@ -100,6 +100,7 @@ interface ConfigBase {
             };
             types: string[];
             ignoreStatuses: string[];
+            output?: string;
         };
     };
     project: string;
