@@ -8,28 +8,13 @@ const script: Script = async (config: Config, argv: Argv) => {
     const query = <string>(argv.query ? argv.query : null);
     const file = <string>(argv.file ? argv.file : null);
 
-    const inputStatuses = getInputStatuses();
-
-    const lowercaseStatuses = inputStatuses.map(status => status.toLowerCase());
-    const statuses = lowercaseStatuses.map(status => status.replace("*", ""));
-    const finalStatuses = lowercaseStatuses
-        .filter(status => status.indexOf("*") >= 0)
-        .map(status => status.replace("*", ""));
+    const statuses: string[] = config.statuses.map(status => status.name);
+    const finalStatuses: string[] = config.statuses.filter(status => status.isDone).map(status => status.name);
 
     if (finalStatuses.length === 0) {
-        const finalStatusGuess = statuses[statuses.length - 1];
-        console.log(`No status marked as final in the config.json. Guessing '${finalStatusGuess}' as the final status`);
-        console.log('Mark the statuses that close a ticket with a "*" before the status name in your config.json');
-        console.log();
-        finalStatuses.push(finalStatusGuess);
-    }
-
-    function getInputStatuses(): string[] {
-        if (argv.statuses) {
-            return argv.statuses.split(",");
-        } else {
-            return config.statuses.map(status => status.name);
-        }
+        console.error("No statuses marked as final. This is required for the script to work.");
+        console.error('See readme.md and the section of "Status JSON Structure" for more info.');
+        process.exit(1);
     }
 
     function showSummary(): boolean {
@@ -57,9 +42,7 @@ const script: Script = async (config: Config, argv: Argv) => {
         issues: IssueWithChangelog[]
     ): string[] {
         const summary = showSummary() ? "Summary," : "";
-        const heading = [
-            `Key,Story Points,${summary}Created,Finished,${inputStatuses.map(s => s.replace("*", "")).join(",")}`
-        ];
+        const heading = [`Key,Story Points,${summary}Created,Finished,${statuses.join(",")}`];
 
         const infoResults = issues.map(issue => Jira.getIssueTimings(issue, finalStatuses));
 
@@ -88,20 +71,17 @@ const script: Script = async (config: Config, argv: Argv) => {
         issues = await Jira.JQL(`key in (${keys.join(",")})`, jiraConfig, "changelog");
     } else {
         console.log(`
-    run leadtime [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
+    run --project=[project] leadtime [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
     
         --file=FILE_NAME
             Write output to a file instead of standard out.
-        --statuses=STATUS_1[,STATUS_2[...]]
-            Override the statuses from config.json with a comma separated list.
-            e.g. --statuses="foo,bar baz,*done"
         --showSummary
         --hideSummary
-            Override the setting from config.json
+            Override the setting from config.project.*.json
     
-    Example: run --file=out.csv --query="project in (br,pay) and type in (bug,task,story) and status = done
-    Example: run --file=out.csv br-1 pay-1
-    Example: run pay-4000
+    Example: run --project=foo leadtime --file=out.csv --query="project in (abc,bcd) and type in (bug,task,story) and status = done"
+    Example: run --project=foo leadtime --file=out.csv ABC-1 BCD-1
+    Example: run --project=foo leadtime ABC-1
     `);
         process.exit(0);
     }
