@@ -14,9 +14,9 @@
     * [Leadtime](#leadtime)
     * [Storypoints](#storypoints)
 * [Script Descriptions](#script-descriptions)
-  * [Donetickets](#donetickets2)
-  * [Leadtime](#leadtime2)
-  * [Storypoints](#storypoints2)
+  * [Donetickets](#donetickets-1)
+  * [Leadtime](#leadtime-1)
+  * [Storypoints](#storypoints-1)
 
 This script scrapes the Lindorff JIRA to get times on how long a ticket has been in any particular status.
 
