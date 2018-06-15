@@ -92,7 +92,7 @@ interface ConfigBase {
     statuses: any;
     scripts: {
         donetickets: {};
-        leadtime: { showSummary: boolean };
+        leadtime: { showSummary?: boolean };
         storypoints: {
             propertyName: {
                 jqlName: string;

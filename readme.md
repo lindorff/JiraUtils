@@ -99,9 +99,9 @@ Currently no separate configuration, so the configuration object is left empty (
 
 #### Leadtime
 
-| Config        | Desc                                                                                       |
-| ------------- | ------------------------------------------------------------------------------------------ |
-| `showSummary` | Setting to "true" will get you the summary text of the ticket into the result set as well. |
+| Config        | Desc                                                                                                                       |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `showSummary` | (**optional**, default `false`) Setting to "true" will get you the summary text of the ticket into the result set as well. |
 
 #### Storypoints
 

@@ -23,7 +23,8 @@ const script: Script = async (config: Config, argv: Argv) => {
         } else if (argv.hideSummary) {
             return false;
         } else {
-            return config.scripts.leadtime.showSummary;
+            const showSummary = config.scripts.leadtime.showSummary;
+            return showSummary !== undefined ? showSummary : false;
         }
     }
 

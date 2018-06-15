@@ -28,8 +28,7 @@
             "properties": {
                 "leadtime": {
                     "type": "object",
-                    "properties": { "showSummary": { "type": "boolean" } },
-                    "required": ["showSummary"]
+                    "properties": { "showSummary": { "type": "boolean" } }
                 },
                 "donetickets": {
                     "type": "object",
