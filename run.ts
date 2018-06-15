@@ -38,40 +38,65 @@ function convertConfig(configJson: ConfigJson): Config {
     return config;
 }
 
+function showHint(heading1: string, heading2: string, items: string[]) {
+    console.error(heading1);
+    console.error(heading2);
+    items.forEach(name => console.error(`- ${name}`));
+    console.error();
+}
+
+async function showProjectsHint(heading: string) {
+    showHint(heading, "Available projects:", await getProjectNames());
+}
+
+async function showScriptsHint(heading: string) {
+    showHint(heading, "Available scripts:", await getScriptNames());
+}
+
 (async () => {
     const scriptName = argv._[0];
     const projectName = argv.project;
+    let config: Config;
+    let mod: { default: Script };
 
-    const errors: string[] = [];
-    if (!projectName) errors.push("You need to give the --project parameter");
-    if (!scriptName) errors.push("You need to define which script to run");
+    let error = false;
+    if (projectName) {
+        try {
+            config = convertConfig(await import(`./config.project.${projectName}.json`));
+        } catch (e) {
+            if (e instanceof Error && e.message.startsWith("Cannot find module")) {
+                await showProjectsHint("No such project: " + projectName);
+                error = true;
+            } else throw e;
+        }
+    } else {
+        await showProjectsHint("You need to give the --project parameter");
+        error = true;
+    }
 
-    if (errors.length > 0) {
-        errors.forEach(error => console.error(error));
+    if (scriptName) {
+        try {
+            mod = await import(`./scripts/${scriptName}`);
+        } catch (e) {
+            if (e instanceof Error && e.message.startsWith("Cannot find module")) {
+                await showScriptsHint("No such script: " + scriptName);
+                error = true;
+            } else throw e;
+        }
+    } else {
+        await showScriptsHint("You need to define which script to run");
+        error = true;
+    }
+
+    if (error) {
+        console.error("Syntax:");
+        console.error("run --project=<project> <script> <<script parameters>>");
         process.exit(1);
     }
 
-    let config: Config;
     try {
-        config = convertConfig(await import(`./config.project.${projectName}.json`));
-    } catch (e) {
-        if (e instanceof Error && e.message.startsWith("Cannot find module")) {
-            console.error("No such project: " + projectName);
-            console.error("Try one of the following:");
-            (await getProjectNames()).forEach(name => console.error(name));
-            process.exit(1);
-        } else throw e;
-    }
-
-    try {
-        const mod: { default: Script } = await import(`./scripts/${scriptName}`);
         await mod.default(config, getSanitizedArgv(argv));
     } catch (e) {
-        if (e instanceof Error && e.message.startsWith("Cannot find module")) {
-            console.log(e.message);
-            console.log("Try one of these:");
-            (await getScriptNames()).forEach(file => console.log(`- ${file}`));
-            process.exit(1);
-        } else throw e;
+        throw e;
     }
 })();
