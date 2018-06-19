@@ -25,15 +25,15 @@ async function getScriptNames() {
     return (await readdir(__dirname + "/scripts")).map(filename => path.basename(filename, path.extname(filename)));
 }
 
-function getSanitizedArgv(argv: Argv) {
-    const sanitizedArgv: Argv = JSON.parse(JSON.stringify(argv));
-    const script = sanitizedArgv._.shift();
-    sanitizedArgv.$0 = script;
-    delete sanitizedArgv.project;
-    return sanitizedArgv;
+function removeThisScriptArguments(argv: Argv): Argv {
+    const newScriptArgv: Argv = JSON.parse(JSON.stringify(argv));
+    const scriptName = newScriptArgv._.shift();
+    newScriptArgv.$0 = scriptName;
+    delete newScriptArgv.project;
+    return newScriptArgv;
 }
 
-function convertConfig(configJson: ConfigJson): Config {
+function convertJsonToConfig(configJson: ConfigJson): Config {
     const config = JSON.parse(JSON.stringify(configJson));
     config.statuses = configJson.statuses.map(name => (isString(name) ? { name } : name));
     return config;
@@ -58,12 +58,12 @@ async function showScriptsHint(heading: string) {
     const scriptName = argv._[0];
     const projectName = argv.project;
     let config: Config;
-    let mod: { default: Script };
+    let scriptModule: { default: Script };
 
     let error = false;
     if (projectName) {
         try {
-            config = convertConfig(await import(`./config.project.${projectName}.json`));
+            config = convertJsonToConfig(await import(`./config.project.${projectName}.json`));
         } catch (e) {
             if (e instanceof Error && e.message.startsWith("Cannot find module")) {
                 await showProjectsHint("No such project: " + projectName);
@@ -77,7 +77,7 @@ async function showScriptsHint(heading: string) {
 
     if (scriptName) {
         try {
-            mod = await import(`./scripts/${scriptName}`);
+            scriptModule = await import(`./scripts/${scriptName}`);
         } catch (e) {
             if (e instanceof Error && e.message.startsWith("Cannot find module")) {
                 await showScriptsHint("No such script: " + scriptName);
@@ -96,7 +96,7 @@ async function showScriptsHint(heading: string) {
     }
 
     try {
-        await mod.default(config, getSanitizedArgv(argv));
+        await scriptModule.default(config, removeThisScriptArguments(argv));
     } catch (e) {
         throw e;
     }
