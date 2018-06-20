@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 PWD="`dirname \"$0\"`"
-$PWD/node_modules/.bin/ts-node run.ts ${@:1}
+$PWD/node_modules/.bin/ts-node _run.ts ${@:1}
