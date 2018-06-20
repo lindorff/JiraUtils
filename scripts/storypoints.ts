@@ -1,37 +1,42 @@
 import { Jira } from "../lib/jira";
-import { Issue } from "../lib/interfaces";
+import { Issue, Config, Argv, Script } from "../lib/interfaces";
 import * as fs from "fs";
-import yargs from "yargs";
 import dateformat from "dateformat";
-import configBase from "../config.json";
-import configStoryPoints from "../config.storypoints.json";
+import jiraConfig from "../config.jira.json";
 
-const config = Object.assign({}, configBase, configStoryPoints);
+const script: Script = async (config: Config, argv: Argv) => {
+    function getOutputFileName(): string {
+        const fromArgv = argv.output;
+        const fromConfig = config.scripts.storypoints.output;
 
-if (!yargs.argv.output) {
-    console.log("Use with --output=[filename]\n");
-    process.exit(0);
-}
+        if (fromArgv) {
+            return fromArgv;
+        } else if (fromConfig) {
+            return fromConfig;
+        } else {
+            console.error("An output file name is required");
+            console.error("Either define the `output` in config.project.*.json, or give it as an --output parameter");
+            process.exit(1);
+        }
+    }
 
-const FILENAME: string = yargs.argv.output;
+    // let's try to get the output filename, and show an error if it's not configured.
+    const FILENAME: string = getOutputFileName();
 
-const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
+    const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
-const FINAL_STATUSES = config.statuses
-    .filter(status => status.indexOf("*") >= 0)
-    .map(status => status.toLowerCase())
-    .map(status => status.replace("*", ""))
-    .map(status => `"${status}"`);
+    const FINAL_STATUSES = config.statuses
+        .filter(status => status.isDone)
+        .map(status => `"${status.name.toLowerCase()}"`);
 
-const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase());
+    const IGNORE_STATUSES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
 
-(async () => {
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
         `project = ${config.project} ` +
-            `and type in (${config.types.join(",")}) ` +
-            `and "${config.storyPoints.jqlName}" > 0 ` +
+            `and type in (${config.scripts.storypoints.types.join(",")}) ` +
+            `and "${config.scripts.storypoints.propertyName.jqlName}" > 0 ` +
             `and status in (${FINAL_STATUSES.join(",")})`,
-        config.jira
+        jiraConfig
     );
 
     const issuesWithStoryPointsMap = new Map<string, Issue>();
@@ -44,7 +49,9 @@ const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase()
     const storyPointsObj = {};
 
     issueTimings.forEach(issueTiming => {
-        const storyPoints = <number>issuesWithStoryPointsMap.get(issueTiming.key).fields[config.storyPoints.apiName];
+        const issue = issuesWithStoryPointsMap.get(issueTiming.key);
+        const storyPoints = <number>issue.fields[config.scripts.storypoints.propertyName.apiName];
+
         let timings = storyPointsObj[storyPoints];
         if (!timings) {
             timings = [];
@@ -73,4 +80,6 @@ const IGNORE_STATUSES = config.ignoreStatuses.map(status => status.toLowerCase()
     });
 
     fs.writeFileSync(FILENAME, buffer, { encoding: "utf-8" });
-})();
+};
+
+export = script;

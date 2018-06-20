@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "Base Config",
+    "description": "The format for configuring this script",
+    "type": "object",
+    "properties": {
+        "statuses": {
+            "description": "The JIRA statuses that will be used to list things.",
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    { "type": "string" },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": { "type": "string" },
+                            "isDone": { "type": "boolean" }
+                        },
+                        "required": ["name"]
+                    }
+                ]
+            },
+            "uniqueItems": true
+        },
+        "scripts": {
+            "description": "Script-specific configurations",
+            "type": "object",
+            "properties": {
+                "leadtime": {
+                    "type": "object",
+                    "properties": { "showSummary": { "type": "boolean" } }
+                },
+                "donetickets": {
+                    "type": "object",
+                    "properties": {}
+                },
+                "storypoints": {
+                    "type": "object",
+                    "properties": {
+                        "propertyName": {
+                            "type": "object",
+                            "properties": {
+                                "jqlName": {
+                                    "type": "string",
+                                    "description":
+                                        "The natural name of the Story Points field (e.g. when using in a JQL query)"
+                                },
+                                "apiName": {
+                                    "type": "string",
+                                    "description":
+                                        "The API field name of the Story Points field. (Can be found with http://[jira-server-host]/rest/api/2/field)"
+                                }
+                            },
+                            "description": "Information about the Story Points field in JIRA",
+                            "required": ["jqlName", "apiName"]
+                        },
+                        "types": { "type": "array", "items": { "type": "string" } },
+                        "ignoreStatuses": { "type": "array", "items": { "type": "string" } },
+                        "output": { "type": "string" }
+                    },
+                    "required": ["propertyName", "types", "ignoreStatuses"]
+                }
+            },
+            "required": ["leadtime", "donetickets", "storypoints"]
+        },
+        "project": {
+            "description": "The JIRA project name",
+            "type": "string"
+        }
+    },
+    "required": ["statuses", "scripts", "project"]
+}

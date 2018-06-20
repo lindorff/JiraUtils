@@ -1,16 +1,11 @@
 import { Jira } from "../lib/jira";
-import yargs from "yargs";
-import configBase from "../config.json";
-import configDoneTickets from "../config.donetickets.json";
+import { Config, Argv, Script } from "../lib/interfaces";
+import jiraConfig from "../config.jira.json";
 
-const config = Object.assign({}, configBase, configDoneTickets);
+const script: Script = async (config: Config, argv: Argv) => {
+    const project = config.project;
+    const completed = config.statuses.filter(status => status.isDone).map(status => status.name);
 
-const argv = yargs.argv;
-
-const project = config.project;
-const completed = config.statuses.filter(status => status.startsWith("*")).map(status => status.substr(1).trim());
-
-(async () => {
     const errors = [];
 
     if (!argv["from"]) errors.push("Use --from=2018-01-01 to define start time");
@@ -35,10 +30,12 @@ const completed = config.statuses.filter(status => status.startsWith("*")).map(s
         new Date(from),
         new Date(to),
         completed,
-        config.jira
+        jiraConfig
     );
 
     const jql = encodeURIComponent(`key in (${result.join(",")}) order by resolutiondate DESC`);
-    console.log(`${config.jira.url}/issues/?jql=${jql}`);
+    console.log(`${jiraConfig.url}/issues/?jql=${jql}`);
     process.exit(0);
-})();
+};
+
+export = script;

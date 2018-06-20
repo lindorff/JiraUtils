@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "Jira Config",
+    "description": "Configuration for connectig to your local JIRA installation",
+    "type": "object",
+    "properties": {
+        "user": {
+            "type": "string",
+            "description": "The JIRA username to connect to"
+        },
+        "pass": {
+            "type": "string",
+            "description": "The password to the JIRA username"
+        },
+        "url": {
+            "type": "string",
+            "description": "The URL in which your JIRA instance lives in (e.g. \"https://jira.example.com\")"
+        }
+    }
+}

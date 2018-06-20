@@ -79,3 +79,37 @@ export interface IssueTimings {
         [statusName: string]: number;
     };
 }
+
+export interface ConfigJson extends ConfigBase {
+    statuses: (string | { name: string; isDone?: boolean })[];
+}
+
+export interface Config extends ConfigBase {
+    statuses: { name: string; isDone?: boolean }[];
+}
+
+interface ConfigBase {
+    statuses: any;
+    scripts: {
+        donetickets: {};
+        leadtime: { showSummary?: boolean };
+        storypoints: {
+            propertyName: {
+                jqlName: string;
+                apiName: string;
+            };
+            types: string[];
+            ignoreStatuses: string[];
+            output?: string;
+        };
+    };
+    project: string;
+}
+
+export interface Argv {
+    _: string[];
+    $0: string;
+    [arg: string]: any;
+}
+
+export type Script = (config: Config, argv: Argv) => Promise<any>;
