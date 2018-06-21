@@ -125,6 +125,13 @@ JIRA _does_ provide a `resolutionDate` field, but it is common to find workflows
 
 Therefore, this script tracks the statuses, and determines whether a ticket has entered, and remained, in any of the given `isDone` statuses during the given timeframe.
 
+Script accepts the following parameters:
+
+| Parameter           | Desc                                                                                                                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--from` (Required) | Define start time. Include tickets that has been done after during or after this date. Format is YYY-mm-dd e.g. 2018-01-01                                                                      |
+| `--to` (Optional)   | Define end time. Include tickets that has been done before this date. Format is YYY-mm-dd e.g. 2018-12-01. If no parameter is given, all tickets that has been done until present are included. |
+
 ### Leadtime
 
 With `leadtime` you can see how many milliseconds issues have been in each of the statuses you are interested in.
