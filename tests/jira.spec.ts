@@ -120,5 +120,66 @@ describe("Jira", () => {
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
             expect(key).to.be.null;
         });
+
+        it("should return null if the issue is not completed at the end of the period, even if it's once done during it", () => {
+            exampleIssue.key = "ABC-1";
+            exampleIssue.changelog.histories[0].created = "2017-01-02T09:00:00.000+0000";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "0", fromString: "start", to: "1", toString: "finish" })
+            ];
+            exampleIssue.changelog.histories[1].created = "2017-01-02T09:30:00.000+0000";
+            exampleIssue.changelog.histories[1].items = [
+                statusHistoryItem({ from: "1", fromString: "finish", to: "0", toString: "start" })
+            ];
+            const from = new Date("2017-01-02");
+            const to = new Date("2017-01-03");
+
+            const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
+            expect(key).to.be.null;
+        });
+
+        it("should return key if the issue is completed at the end of the period, even if it's changed done after it", () => {
+            exampleIssue.key = "ABC-1";
+            exampleIssue.changelog.histories[0].created = "2017-01-02T09:00:00.000+0000";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "0", fromString: "start", to: "1", toString: "finish" })
+            ];
+            exampleIssue.changelog.histories[1].created = "2017-01-05T09:30:00.000+0000";
+            exampleIssue.changelog.histories[1].items = [
+                statusHistoryItem({ from: "1", fromString: "finish", to: "0", toString: "start" })
+            ];
+            const from = new Date("2017-01-02");
+            const to = new Date("2017-01-03");
+
+            const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
+            expect(key).to.equal("ABC-1");
+        });
+
+        it("should return null if the issue is completed before the period, and changed during it", () => {
+            exampleIssue.key = "ABC-1";
+            exampleIssue.changelog.histories[0].created = "2017-01-01T09:00:00.000+0000";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "0", fromString: "start", to: "1", toString: "finish" })
+            ];
+            exampleIssue.changelog.histories[1].created = "2017-01-02T09:30:00.000+0000";
+            exampleIssue.changelog.histories[1].items = [
+                statusHistoryItem({ from: "1", fromString: "finish", to: "0", toString: "start" })
+            ];
+            const from = new Date("2017-01-02");
+            const to = new Date("2017-01-03");
+
+            const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
+            expect(key).to.be.null;
+        });
+
+        it("should return null if the issue has no transitions", () => {
+            exampleIssue.key = "ABC-1";
+            exampleIssue.changelog.histories = [];
+            const from = new Date("2017-01-02");
+            const to = new Date("2017-01-03");
+
+            const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
+            expect(key).to.be.null;
+        });
     });
 });

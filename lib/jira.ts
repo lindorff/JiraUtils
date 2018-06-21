@@ -19,39 +19,28 @@ export function returnKeyIfCompletedDuringTheDate(
     from: Date,
     to: Date
 ): string {
-    const statusIsAFinishingStatus = (statusItem: HistoryItem) =>
-        doneStatuses.map(status => status.toLowerCase()).indexOf(statusItem.toString.toLowerCase()) >= 0;
-    const statusHistory = getIssueStatusEvents(issue);
+    doneStatuses = doneStatuses.map(status => status.toLowerCase());
 
-    if (statusHistory.length === 0) {
-        // Issue has not transitioned at all yet
+    const sortedHistoriesDuringPeriod = getIssueStatusEvents(issue)
+        .filter(history => {
+            const created = new Date(history.created);
+            return from < created && created < to;
+        })
+        .sort((a, b) => a.created.localeCompare(b.created));
+
+    if (sortedHistoriesDuringPeriod.length === 0) return null;
+
+    const lastHistoryDuringPeriod = sortedHistoriesDuringPeriod[sortedHistoriesDuringPeriod.length - 1];
+    const finishingLastHistories = lastHistoryDuringPeriod.items.filter(
+        item => doneStatuses.indexOf(item.toString.toLowerCase()) >= 0
+    );
+    const lastHistoryDuringPeriodIsAFinishingHistory = finishingLastHistories.length > 0;
+
+    if (lastHistoryDuringPeriodIsAFinishingHistory) {
+        return issue.key;
+    } else {
         return null;
     }
-
-    let firstFinishedStatus: History = null;
-    for (let i = statusHistory.length - 1; i >= 0; i--) {
-        const status = statusHistory[i];
-        const statusItem = status.items[0];
-
-        if (statusIsAFinishingStatus(statusItem)) {
-            firstFinishedStatus = status;
-            break;
-        }
-    }
-
-    if (firstFinishedStatus !== null) {
-        const statusDate = new Date(firstFinishedStatus.created);
-        if (from <= statusDate && statusDate <= to) {
-            return issue.key;
-        } else {
-            // Issue is completed, but got first completed outside of the given time range.
-        }
-    } else {
-        // Issue is not completed currently.
-        // Either hasn't got that far yet, or has been taken back from the progress.
-    }
-
-    return null;
 }
 
 export class Jira {
