@@ -5,12 +5,53 @@ import dateFormat from "dateformat";
 export function getIssueStatusEvents(issue: Issue & HasChangelog): History[] {
     const statusChangeHistories = issue.changelog.histories.filter(history => {
         history.items = history.items.filter(
-            item => item.field === "status" && item.from != null && item.to != null && item.from !== item.to
+            item => item.field === "status" && item.from !== null && item.to !== null && item.from !== item.to
         );
         return history.items.length > 0;
     });
 
     return statusChangeHistories;
+}
+
+export function returnKeyIfCompletedDuringTheDate(
+    issue: Issue & HasChangelog,
+    doneStatuses: string[],
+    from: Date,
+    to: Date
+): string {
+    const statusIsAFinishingStatus = (statusItem: HistoryItem) =>
+        doneStatuses.map(status => status.toLowerCase()).indexOf(statusItem.toString.toLowerCase()) >= 0;
+    const statusHistory = getIssueStatusEvents(issue);
+
+    if (statusHistory.length === 0) {
+        // Issue has not transitioned at all yet
+        return null;
+    }
+
+    let firstFinishedStatus: History = null;
+    for (let i = statusHistory.length - 1; i >= 0; i--) {
+        const status = statusHistory[i];
+        const statusItem = status.items[0];
+
+        if (statusIsAFinishingStatus(statusItem)) {
+            firstFinishedStatus = status;
+            break;
+        }
+    }
+
+    if (firstFinishedStatus !== null) {
+        const statusDate = new Date(firstFinishedStatus.created);
+        if (from <= statusDate && statusDate <= to) {
+            return issue.key;
+        } else {
+            // Issue is completed, but got first completed outside of the given time range.
+        }
+    } else {
+        // Issue is not completed currently.
+        // Either hasn't got that far yet, or has been taken back from the progress.
+    }
+
+    return null;
 }
 
 export class Jira {
@@ -99,7 +140,7 @@ export class Jira {
         project: string,
         from: Date,
         to: Date,
-        statuses: string[],
+        doneStatuses: string[],
         types: string[],
         jira: JiraConfig
     ): Promise<string[]> {
@@ -107,7 +148,6 @@ export class Jira {
             throw new Error("You need to give at least one issue type");
         }
 
-        statuses = statuses.map(status => status.toLowerCase());
         const issuesThatWereUpdatedInAnyWay: (Issue & HasChangelog)[] = await this.JQL_withChangelog(
             `project = ${project} and ` +
                 `type in (${types.map(type => `"${type}"`).join(",")}) and ` +
@@ -116,45 +156,8 @@ export class Jira {
             jira
         );
 
-        function returnKeyIfCompletedDuringTheDate(issue: Issue & HasChangelog): string {
-            const statusIsAFinishingStatus = (statusItem: HistoryItem) =>
-                statuses.indexOf(statusItem.toString.toLowerCase()) >= 0;
-            const statusHistory = getIssueStatusEvents(issue);
-
-            if (statusHistory.length === 0) {
-                // Issue has not transitioned at all yet
-                return null;
-            }
-
-            let firstFinishedStatus: History = null;
-            for (let i = statusHistory.length - 1; i > 0; i--) {
-                const status = statusHistory[i];
-                const statusItem = status.items[0];
-
-                if (statusIsAFinishingStatus(statusItem)) {
-                    firstFinishedStatus = status;
-                } else {
-                    break;
-                }
-            }
-
-            if (firstFinishedStatus !== null) {
-                const statusDate = new Date(firstFinishedStatus.created);
-                if (from <= statusDate && statusDate <= to) {
-                    return issue.key;
-                } else {
-                    // Issue is completed, but got first completed outside of the given time range.
-                }
-            } else {
-                // Issue is not completed currently.
-                // Either hasn't got that far yet, or has been taken back from the progress.
-            }
-
-            return null;
-        }
-
         return issuesThatWereUpdatedInAnyWay
-            .map(issue => returnKeyIfCompletedDuringTheDate(issue))
+            .map(issue => returnKeyIfCompletedDuringTheDate(issue, doneStatuses, from, to))
             .filter(key => !!key)
             .sort();
     }

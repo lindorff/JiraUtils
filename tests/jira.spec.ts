@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import "mocha";
-import { Issue, HasChangelog, HistoryItem, History } from "../lib/interfaces";
-import { getIssueStatusEvents } from "../lib/jira";
+import { Issue, HasChangelog, HistoryItem } from "../lib/interfaces";
+import { getIssueStatusEvents, returnKeyIfCompletedDuringTheDate } from "../lib/jira";
 
 function historyItem(partial: any): HistoryItem {
     const historyItem: HistoryItem = {
@@ -14,6 +14,11 @@ function historyItem(partial: any): HistoryItem {
     };
 
     return Object.assign(historyItem, partial);
+}
+
+function statusHistoryItem(partial: any): HistoryItem {
+    const statusHistoryItem = { field: "status", fieldtype: "jira" };
+    return historyItem(Object.assign(statusHistoryItem, partial));
 }
 
 describe("Jira", () => {
@@ -73,6 +78,47 @@ describe("Jira", () => {
 
             const statusEvents = getIssueStatusEvents(exampleIssue);
             expect(statusEvents).to.have.lengthOf(0);
+        });
+    });
+
+    describe("returnKeyIfCompletedDuringTheDate", () => {
+        it("should return the issue's key if the issue is completed during the date interval", () => {
+            exampleIssue.key = "ABC-1";
+            exampleIssue.changelog.histories[0].created = "2017-01-02T09:00:00.000+0000";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "0", fromString: "start", to: "1", toString: "finish" })
+            ];
+            const from = new Date("2017-01-02");
+            const to = new Date("2017-01-03");
+
+            const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
+            expect(key).to.equal("ABC-1");
+        });
+
+        it("should return null if the issue is completed before the date interval", () => {
+            exampleIssue.key = "ABC-1";
+            exampleIssue.changelog.histories[0].created = "2017-01-01T09:00:00.000+0000";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "0", fromString: "start", to: "1", toString: "finish" })
+            ];
+            const from = new Date("2017-01-02");
+            const to = new Date("2017-01-03");
+
+            const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
+            expect(key).to.be.null;
+        });
+
+        it("should return null if the issue is completed after the date interval", () => {
+            exampleIssue.key = "ABC-1";
+            exampleIssue.changelog.histories[0].created = "2017-01-04T09:00:00.000+0000";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "0", fromString: "start", to: "1", toString: "finish" })
+            ];
+            const from = new Date("2017-01-02");
+            const to = new Date("2017-01-03");
+
+            const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
+            expect(key).to.be.null;
         });
     });
 });
