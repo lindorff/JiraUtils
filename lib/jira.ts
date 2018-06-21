@@ -2,21 +2,6 @@ import { Issue, HasChangelog, HistoryItem, IssueQueryResponse, JiraConfig, Issue
 import request from "request-promise-native";
 import dateFormat from "dateformat";
 
-async function getIssueDetails(key: string, jira: JiraConfig): Promise<Issue & HasChangelog> {
-    const issueDetails = <Issue & HasChangelog>(
-        JSON.parse(await request(`${jira.url}/rest/api/2/issue/${key}?expand=changelog`, { auth: jira }))
-    );
-
-    if (issueDetails.changelog.maxResults < issueDetails.changelog.total) {
-        throw new Error(
-            `${key} has more changelog events than what we can process ` +
-                `with the current Jira API (Got ${issueDetails.changelog.maxResults} ` +
-                `event(s), but it has ${issueDetails.changelog.total}`
-        );
-    }
-    return issueDetails;
-}
-
 export function getIssueStatusEvents(issue: Issue & HasChangelog): History[] {
     const statusChangeHistories = issue.changelog.histories.filter(history => {
         history.items = history.items.filter(
