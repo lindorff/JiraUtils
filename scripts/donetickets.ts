@@ -37,7 +37,7 @@ const script: Script = async (config: Config, argv: Argv) => {
     process.exit(0);
 };
 
-function getToDateOrDefault(to) {
+function getToDateOrDefault(to: string): Date {
     if (to) {
         return new Date(to);
     } else {
