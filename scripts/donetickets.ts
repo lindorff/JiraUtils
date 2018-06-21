@@ -9,7 +9,6 @@ const script: Script = async (config: Config, argv: Argv) => {
     const errors = [];
 
     if (!argv["from"]) errors.push("Use --from=2018-01-01 to define start time");
-    if (!argv["to"]) errors.push("Use --to=2018-01-02 to define end time");
 
     if (errors.length > 0) {
         console.log(errors.join("\n"));
@@ -28,7 +27,7 @@ const script: Script = async (config: Config, argv: Argv) => {
     const result = await Jira.getKeysLandedInStatusDuringTimePeriod(
         project,
         new Date(from),
-        new Date(to),
+        getToDateOrDefault(to),
         completed,
         jiraConfig
     );
@@ -37,5 +36,17 @@ const script: Script = async (config: Config, argv: Argv) => {
     console.log(`${jiraConfig.url}/issues/?jql=${jql}`);
     process.exit(0);
 };
+
+function getToDateOrDefault(to: string): Date {
+    if (to) {
+        return new Date(to);
+    } else {
+        //We want to have date from the future so that we are sure we include all done tickets.
+        //Jira defaults date to midnight so tickets done today wouldn't be included if we would use today as default.
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow;
+    }
+}
 
 export = script;
