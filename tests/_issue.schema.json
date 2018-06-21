@@ -3,6 +3,7 @@
     "title": "Issue",
     "type": "object",
     "properties": {
+        "$schema": { "type": "string" },
         "expand": {
             "type": "string"
         },
