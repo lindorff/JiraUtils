@@ -95,7 +95,9 @@ There are currently three supported scripts. Each have their own configuration s
 
 #### Donetickets
 
-Currently no separate configuration, so the configuration object is left empty ("`{}`")
+| Config  | Desc                                                             |
+| ------- | ---------------------------------------------------------------- |
+| `types` | An array of ticket types that you want to include in the results |
 
 #### Leadtime
 

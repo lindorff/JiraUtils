@@ -81,7 +81,7 @@ export interface Config extends ConfigBase {
 interface ConfigBase {
     statuses: any;
     scripts: {
-        donetickets: {};
+        donetickets: { types: string[] };
         leadtime: { showSummary?: boolean };
         storypoints: {
             propertyName: {

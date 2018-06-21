@@ -29,6 +29,7 @@ const script: Script = async (config: Config, argv: Argv) => {
         new Date(from),
         getToDateOrDefault(to),
         completed,
+        config.scripts.donetickets.types,
         jiraConfig
     );
 

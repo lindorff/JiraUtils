@@ -116,12 +116,13 @@ export class Jira {
         from: Date,
         to: Date,
         statuses: string[],
+        types: string[],
         jira: JiraConfig
     ): Promise<string[]> {
         statuses = statuses.map(status => status.toLowerCase());
         const keysThatWereUpdatedInAnyWay: string[] = (await this.JQL(
             `project = ${project} and ` +
-                `type in (story, task) and ` +
+                `type in (${types.map(type => `"${type}"`).join(",")}) and ` +
                 `updatedDate >= ${dateFormat(from, "yyyy-mm-dd")} and ` +
                 `updatedDate <= ${dateFormat(to, "yyyy-mm-dd")}`,
             jira

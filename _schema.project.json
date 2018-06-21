@@ -32,7 +32,15 @@
                 },
                 "donetickets": {
                     "type": "object",
-                    "properties": {}
+                    "properties": {
+                        "types": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": ["types"]
                 },
                 "storypoints": {
                     "type": "object",
