@@ -1,4 +1,4 @@
-import { Issue, HasChangelog, HistoryItem, IssueQueryResponse, JiraConfig, IssueTimings, History } from "./interfaces";
+import { Issue, HasChangelog, IssueQueryResponse, JiraConfig, IssueTimings, History } from "./interfaces";
 import request from "request-promise-native";
 import dateFormat from "dateformat";
 
