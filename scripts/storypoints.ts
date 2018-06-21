@@ -42,9 +42,7 @@ const script: Script = async (config: Config, argv: Argv) => {
     const issuesWithStoryPointsMap = new Map<string, Issue>();
     issuesWithStoryPoints.forEach(issue => issuesWithStoryPointsMap.set(issue.key, issue));
 
-    const issueTimings = issuesWithStoryPoints.map(issue =>
-        Jira.getIssueTimings(issue, ["completed", "live in production"])
-    );
+    const issueTimings = issuesWithStoryPoints.map(issue => Jira.getIssueTimings(issue, FINAL_STATUSES));
 
     const storyPointsObj = {};
 
