@@ -57,9 +57,11 @@ export class Jira {
         console.log();
     }
 
-    public static async JQL_withChangelog<T extends Issue & HasChangelog>(jql: string, jira: JiraConfig): Promise<T[]> {
-        return <Promise<T[]>>this.JQL(jql, jira, "changelog");
+    public static async JQL_withChangelog(jql: string, jira: JiraConfig): Promise<(Issue & HasChangelog)[]> {
+        return this.JQL(jql, jira, "changelog");
     }
+
+    public static async JQL(jql: string, jira: JiraConfig, expand: "changelog"): Promise<(Issue & HasChangelog)[]>;
     public static async JQL(jql: string, jira: JiraConfig, expand?: string): Promise<Issue[]> {
         const collector: Issue[] = [];
         await this.JQL_forEach(jql, jira, issue => collector.push(issue), expand);
@@ -121,19 +123,18 @@ export class Jira {
         }
 
         statuses = statuses.map(status => status.toLowerCase());
-        const keysThatWereUpdatedInAnyWay: string[] = (await this.JQL(
+        const issuesThatWereUpdatedInAnyWay: (Issue & HasChangelog)[] = await this.JQL_withChangelog(
             `project = ${project} and ` +
                 `type in (${types.map(type => `"${type}"`).join(",")}) and ` +
                 `updatedDate >= ${dateFormat(from, "yyyy-mm-dd")} and ` +
                 `updatedDate <= ${dateFormat(to, "yyyy-mm-dd")}`,
             jira
-        )).map(issue => issue.key);
+        );
 
-        async function returnSelfIfCompletedDuringTheDate(key: string): Promise<string> {
+        function returnKeyIfCompletedDuringTheDate(issue: Issue & HasChangelog): string {
             const statusIsAFinishingStatus = (statusItem: HistoryItem) =>
                 statuses.indexOf(statusItem.toString.toLowerCase()) >= 0;
-            const details = await getIssueDetails(key, jira);
-            const statusHistory = getIssueStatusEvents(details);
+            const statusHistory = getIssueStatusEvents(issue);
 
             if (statusHistory.length === 0) {
                 // Issue has not transitioned at all yet
@@ -155,7 +156,7 @@ export class Jira {
             if (firstFinishedStatus !== null) {
                 const statusDate = new Date(firstFinishedStatus.created);
                 if (from <= statusDate && statusDate <= to) {
-                    return key;
+                    return issue.key;
                 } else {
                     // Issue is completed, but got first completed outside of the given time range.
                 }
@@ -167,11 +168,10 @@ export class Jira {
             return null;
         }
 
-        const promises: Promise<string>[] = [];
-        keysThatWereUpdatedInAnyWay.forEach(key => {
-            promises.push(returnSelfIfCompletedDuringTheDate(key));
-        });
-        return (await Promise.all(promises)).filter(keyOrFalsy => !!keyOrFalsy).sort();
+        return issuesThatWereUpdatedInAnyWay
+            .map(issue => returnKeyIfCompletedDuringTheDate(issue))
+            .filter(key => !!key)
+            .sort();
     }
 
     public static issueHasChangelog<IssueWithChangelog extends Issue & HasChangelog>(
