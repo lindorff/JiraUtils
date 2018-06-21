@@ -17,15 +17,12 @@ async function getIssueDetails(key: string, jira: JiraConfig): Promise<Issue & H
     return issueDetails;
 }
 
-function getIssueStatusEvents(issue: Issue & HasChangelog): History[] {
+export function getIssueStatusEvents(issue: Issue & HasChangelog): History[] {
     const statusChangeHistories = issue.changelog.histories.filter(history => {
-        const statusItem = history.items.find(item => item.field === "status");
-        return (
-            statusItem !== undefined &&
-            statusItem.from != null &&
-            statusItem.to != null &&
-            statusItem.from !== statusItem.to
+        history.items = history.items.filter(
+            item => item.field === "status" && item.from != null && item.to != null && item.from !== item.to
         );
+        return history.items.length > 0;
     });
 
     return statusChangeHistories;
