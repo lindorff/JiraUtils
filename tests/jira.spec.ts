@@ -67,5 +67,12 @@ describe("Jira", () => {
             const statusEvents = getIssueStatusEvents(exampleIssue);
             expect(statusEvents).to.have.lengthOf(0);
         });
+
+        it("should discard any status items with the same to and from fields", () => {
+            exampleIssue.changelog.histories[0].items = [historyItem({ field: "status", from: "0", to: "0" })];
+
+            const statusEvents = getIssueStatusEvents(exampleIssue);
+            expect(statusEvents).to.have.lengthOf(0);
+        });
     });
 });
