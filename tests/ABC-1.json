@@ -1,0 +1,13 @@
+{
+    "$schema": "./_issue.schema.json",
+    "changelog": {
+        "histories": [
+            {
+                "items": []
+            }
+        ],
+        "maxResults": 1,
+        "startAt": 0,
+        "total": 1
+    }
+}
