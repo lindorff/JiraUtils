@@ -22,16 +22,6 @@ export interface History {
     items: HistoryItem[];
 }
 
-export interface HistoryListing {
-    self: string;
-    nextPage: string;
-    maxResults: number;
-    startAt: number;
-    total: number;
-    isLast: boolean;
-    values: History[];
-}
-
 export interface HasChangelog {
     changelog: {
         maxResults: number;
