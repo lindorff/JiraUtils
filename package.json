@@ -31,5 +31,10 @@
         "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.spec.ts"
     },
     "author": "Henrik Paul <henrik.paul@lindorff.com>",
-    "license": "UNLICENSED"
+    "licenses": [
+        {
+            "type": "Apache-2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0"
+        }
+    ]
 }
