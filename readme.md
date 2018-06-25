@@ -1,4 +1,4 @@
-# Jira Lead Times
+# Jira Utilities
 
 * [Taking the script into use](#taking-the-script-into-use)  
   * [0: Download Node.js](#0-download-nodejs)
