@@ -34,6 +34,7 @@
                     "type": "object",
                     "properties": {
                         "types": {
+                            "description": "An array of ticket types that you want to include in the results",
                             "type": "array",
                             "items": {
                                 "type": "string"

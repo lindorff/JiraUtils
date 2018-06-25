@@ -7,7 +7,7 @@
         { "name": "Live in production" }
     ],
     "scripts": {
-        "donetickets": { "types": ["done", "task"] },
+        "donetickets": { "types": ["story", "task"] },
         "leadtime": { "showSummary": false },
         "storypoints": {
             "propertyName": {
