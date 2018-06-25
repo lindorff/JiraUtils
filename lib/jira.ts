@@ -119,6 +119,10 @@ export class Jira {
         types: string[],
         jira: JiraConfig
     ): Promise<string[]> {
+        if (types.length === 0) {
+            throw new Error("You need to give at least one issue type");
+        }
+
         statuses = statuses.map(status => status.toLowerCase());
         const keysThatWereUpdatedInAnyWay: string[] = (await this.JQL(
             `project = ${project} and ` +
