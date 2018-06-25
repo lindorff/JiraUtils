@@ -1,11 +1,11 @@
 {
-    "name": "jiralead",
+    "name": "jirautils",
     "version": "1.0.0",
     "description": "",
     "private": true,
     "repository": {
         "type": "git",
-        "url": "https://github.com/lindorff/JiraLead.git"
+        "url": "https://github.com/lindorff/JiraUtils.git"
     },
     "dependencies": {
         "@types/dateformat": "^1.0.1",
