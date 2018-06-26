@@ -97,27 +97,27 @@ namespace script {
         finalStatuses: string[],
         showSummary: boolean
     ): string[] {
-        const summary = showSummary ? "Summary," : "";
-        const heading = [`Key,${summary}Created,Finished,${statuses.join(",")}`];
+        const headings = [];
+        headings.push("Key");
+        if (showSummary) headings.push("Summary");
+        headings.push("Created");
+        headings.push("Finished");
+        headings.push(...statuses);
+        const titleLine = headings.join(",");
 
         const infoResults = issues.map(issue => Jira.getIssueTimings(issue, finalStatuses));
 
         const lines = infoResults.map(info => {
-            const finished = info.finished ? prettyPrintDate(info.finished) : "";
-            const summary = showSummary ? `"${info.summary.replace('"', '\\"')}",` : "";
-            return (
-                info.key +
-                "," +
-                summary +
-                prettyPrintDate(info.created) +
-                "," +
-                finished +
-                "," +
-                prettyPrintTimes(info.times, statuses)
-            );
+            const row = [];
+            row.push(info.key);
+            if (showSummary) row.push(`"${info.summary.replace('"', '\\"')}"`);
+            row.push(prettyPrintDate(info.created));
+            row.push(info.finished ? prettyPrintDate(info.finished) : "");
+            row.push(prettyPrintTimes(info.times, statuses));
+            return row.join(",");
         });
 
-        return heading.concat(lines);
+        return [titleLine].concat(lines);
     }
 }
 
