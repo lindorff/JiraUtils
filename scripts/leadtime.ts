@@ -81,11 +81,11 @@ const script: Script = async (config: Config, argv: Argv) => {
         return heading.concat(lines);
     }
 
-    let issues: Issue[] = [];
+    let issues: (Issue & HasChangelog)[] = [];
     if (query) {
-        issues = await Jira.JQL(query, jiraConfig, "changelog");
+        issues = await Jira.JQL_withChangelog(query, jiraConfig);
     } else if (keys.length > 0) {
-        issues = await Jira.JQL(`key in (${keys.join(",")})`, jiraConfig, "changelog");
+        issues = await Jira.JQL_withChangelog(`key in (${keys.join(",")})`, jiraConfig);
     } else {
         console.log(`
     run --project=[project] leadtime [OPTIONS] [--query=JQL | KEY1 [KEY2 [...]]]
@@ -103,20 +103,16 @@ const script: Script = async (config: Config, argv: Argv) => {
         process.exit(0);
     }
 
-    if (Jira.issuesHaveChangelogs(issues)) {
-        const strings = await getIssueTimeStrings(issues);
+    const strings = await getIssueTimeStrings(issues);
 
-        if (!file) {
-            strings.forEach(line => {
-                console.log(line);
-            });
-        } else {
-            console.log(`Writing to ${file}`);
-            fs.writeFileSync(file, strings.join("\n"), { encoding: "utf-8" });
-            console.log(`Success!`);
-        }
+    if (!file) {
+        strings.forEach(line => {
+            console.log(line);
+        });
     } else {
-        console.error("Tickets were not fetched properly :/");
+        console.log(`Writing to ${file}`);
+        fs.writeFileSync(file, strings.join("\n"), { encoding: "utf-8" });
+        console.log(`Success!`);
     }
 };
 
