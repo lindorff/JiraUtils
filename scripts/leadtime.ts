@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Jira } from "../lib/jira";
-import { Issue, HasChangelog, Config, Argv, Script } from "../lib/interfaces";
+import { Issue, HasChangelog, Config, Argv, Script, IssueTimings } from "../lib/interfaces";
 import * as fs from "fs";
 import jiraConfig from "../config.jira.json";
 
@@ -79,45 +79,55 @@ async function script(config: Config, argv: Argv) {
     }
 }
 
+function prettyPrintDate(date: Date): string {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
+function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
+    return statuses
+        .map(s => s.toLowerCase())
+        .map(s => values[s] || 0)
+        .join(",");
+}
+
+function headingString(showSummary: boolean, statuses: string[]): string {
+    const headings = [];
+    headings.push("Key");
+    if (showSummary) headings.push("Summary");
+    headings.push("Created");
+    headings.push("Finished");
+    headings.push(...statuses);
+    return headings.join(",");
+}
+
+function issueString(showSummary: boolean, statuses: string[]) {
+    return (info: IssueTimings): string => {
+        const row = [];
+        row.push(info.key);
+        if (showSummary) {
+            const quoteEscapedSummary = '"' + info.summary.replace('"', '\\"') + '"';
+            row.push(quoteEscapedSummary);
+        }
+        row.push(prettyPrintDate(info.created));
+        row.push(info.finished ? prettyPrintDate(info.finished) : "");
+        row.push(prettyPrintTimes(info.times, statuses));
+        return row.join(",");
+    };
+}
+
 namespace script {
-    function prettyPrintDate(date: Date): string {
-        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    }
-
-    function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
-        return statuses
-            .map(s => s.toLowerCase())
-            .map(s => values[s] || 0)
-            .join(",");
-    }
-
     export function getIssueTimeStrings<IssueWithChangelog extends Issue & HasChangelog>(
         issues: IssueWithChangelog[],
         statuses: string[],
         finalStatuses: string[],
         showSummary: boolean
     ): string[] {
-        const headings = [];
-        headings.push("Key");
-        if (showSummary) headings.push("Summary");
-        headings.push("Created");
-        headings.push("Finished");
-        headings.push(...statuses);
-        const titleLine = headings.join(",");
-
         const infoResults = issues.map(issue => Jira.getIssueTimings(issue, finalStatuses));
 
-        const lines = infoResults.map(info => {
-            const row = [];
-            row.push(info.key);
-            if (showSummary) row.push(`"${info.summary.replace('"', '\\"')}"`);
-            row.push(prettyPrintDate(info.created));
-            row.push(info.finished ? prettyPrintDate(info.finished) : "");
-            row.push(prettyPrintTimes(info.times, statuses));
-            return row.join(",");
-        });
+        const heading = headingString(showSummary, statuses);
+        const lines = infoResults.map(issueString(showSummary, statuses));
 
-        return [titleLine].concat(lines);
+        return [heading].concat(lines);
     }
 }
 
