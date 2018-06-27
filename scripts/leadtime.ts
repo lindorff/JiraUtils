@@ -25,7 +25,7 @@ async function script(config: Config, argv: Argv) {
     const file = <string>(argv.file ? argv.file : null);
 
     const statuses: string[] = config.statuses.map(status => status.name);
-    const finalStatuses: string[] = config.statuses.filter(status => status.isDone).map(status => status.name);
+    const finalStatuses: string[] = Jira.getFinalStatuses(config);
 
     if (finalStatuses.length === 0) {
         console.error("No statuses marked as final. This is required for the script to work.");

@@ -41,9 +41,7 @@ const script: Script = async (config: Config, argv: Argv) => {
 
     const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
-    const FINAL_STATUSES = config.statuses
-        .filter(status => status.isDone)
-        .map(status => `"${status.name.toLowerCase()}"`);
+    const FINAL_STATUSES = Jira.getFinalStatuses(config).map(status => `"${status.toLowerCase()}"`);
 
     const IGNORE_STATUSES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
 
