@@ -1,7 +1,28 @@
 import { expect } from "chai";
 import "mocha";
-import { Issue, HasChangelog, HistoryItem } from "../lib/interfaces";
-import { getIssueStatusEvents, returnKeyIfCompletedDuringTheDate } from "../lib/jira";
+import { Issue, HasChangelog, HistoryItem, Config } from "../lib/interfaces";
+import { getIssueStatusEvents, returnKeyIfCompletedDuringTheDate, Jira } from "../lib/jira";
+
+function config(partial: any): Config {
+    const emptyConfig: Config = {
+        project: null,
+        statuses: [],
+        scripts: {
+            donetickets: { types: [] },
+            leadtime: {},
+            storypoints: {
+                propertyName: {
+                    jqlName: null,
+                    apiName: null
+                },
+                types: [],
+                ignoreStatuses: []
+            }
+        }
+    };
+
+    return Object.assign(emptyConfig, partial);
+}
 
 function historyItem(partial: any): HistoryItem {
     const historyItem: HistoryItem = {
@@ -180,6 +201,39 @@ describe("Jira", () => {
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
             expect(key).to.be.null;
+        });
+    });
+
+    describe("getFinalStatuses", () => {
+        it("should return an empty array on an empty input", () => {
+            const emptyStatusesConfig = config({});
+            const finalStatuses = Jira.getFinalStatuses(emptyStatusesConfig);
+            expect(finalStatuses).to.be.empty;
+        });
+
+        it("should return an empty array on only-string input", () => {
+            const stringArrayConfig = config({ statuses: ["foo", "bar"] });
+            const finalStatuses = Jira.getFinalStatuses(stringArrayConfig);
+            expect(finalStatuses).to.be.empty;
+        });
+
+        it("should return an empty array on only-name-object input", () => {
+            const nameObjectConfig = config({ statuses: [{ name: "foo" }, { name: "bar" }] });
+            const finalStatuses = Jira.getFinalStatuses(nameObjectConfig);
+            expect(finalStatuses).to.be.empty;
+        });
+
+        it("should return an empty array on object input with explicit isDone=false", () => {
+            const nameObjectConfig = config({ statuses: [{ name: "foo", isDone: false }] });
+            const finalStatuses = Jira.getFinalStatuses(nameObjectConfig);
+            expect(finalStatuses).to.be.empty;
+        });
+
+        it("should return the isDone status from the mixed input", () => {
+            const mixedConfig = config({ statuses: ["foo", { name: "bar" }, { name: "baz", isDone: true }] });
+            const finalStatuses = Jira.getFinalStatuses(mixedConfig);
+            expect(finalStatuses).lengthOf(1);
+            expect(finalStatuses).contains("baz");
         });
     });
 });

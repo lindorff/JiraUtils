@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Issue, HasChangelog, IssueQueryResponse, JiraConfig, IssueTimings, History } from "./interfaces";
+import { Issue, HasChangelog, IssueQueryResponse, JiraConfig, IssueTimings, History, Config } from "./interfaces";
 import request from "request-promise-native";
 import dateFormat from "dateformat";
 
@@ -180,5 +180,9 @@ export class Jira {
             if (!this.issueHasChangelog(issues[i])) return false;
         }
         return true;
+    }
+
+    public static getFinalStatuses(config: Config): string[] {
+        return config.statuses.filter(status => status.isDone).map(status => status.name);
     }
 }
