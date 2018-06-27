@@ -149,13 +149,10 @@ export class Jira {
         types: string[],
         jira: JiraConfig
     ): Promise<string[]> {
-        if (types.length === 0) {
-            throw new Error("You need to give at least one issue type");
-        }
-
+        const typesCondition = types.length > 0 ? `type in (${types.map(type => `"${type}"`).join(",")}) and ` : "";
         const issuesThatWereUpdatedInAnyWay: (Issue & HasChangelog)[] = await this.JQL_withChangelog(
             `project = ${project} and ` +
-                `type in (${types.map(type => `"${type}"`).join(",")}) and ` +
+                typesCondition +
                 `updatedDate >= ${dateFormat(from, "yyyy-mm-dd")} and ` +
                 `updatedDate <= ${dateFormat(to, "yyyy-mm-dd")}`,
             jira
