@@ -211,12 +211,6 @@ describe("Jira", () => {
             expect(finalStatuses).to.be.empty;
         });
 
-        it("should return an empty array on only-string input", () => {
-            const stringArrayConfig = config({ statuses: ["foo", "bar"] });
-            const finalStatuses = Jira.getFinalStatuses(stringArrayConfig);
-            expect(finalStatuses).to.be.empty;
-        });
-
         it("should return an empty array on only-name-object input", () => {
             const nameObjectConfig = config({ statuses: [{ name: "foo" }, { name: "bar" }] });
             const finalStatuses = Jira.getFinalStatuses(nameObjectConfig);
@@ -230,7 +224,9 @@ describe("Jira", () => {
         });
 
         it("should return the isDone status from the mixed input", () => {
-            const mixedConfig = config({ statuses: ["foo", { name: "bar" }, { name: "baz", isDone: true }] });
+            const mixedConfig = config({
+                statuses: [{ name: "foo", isDone: false }, { name: "bar" }, { name: "baz", isDone: true }]
+            });
             const finalStatuses = Jira.getFinalStatuses(mixedConfig);
             expect(finalStatuses).lengthOf(1);
             expect(finalStatuses).contains("baz");
