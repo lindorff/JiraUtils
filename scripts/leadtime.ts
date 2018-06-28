@@ -24,10 +24,10 @@ async function script(config: Config, argv: Argv) {
     const query = <string>(argv.query ? argv.query : null);
     const file = <string>(argv.file ? argv.file : null);
 
-    const statuses: string[] = config.statuses.map(status => status.name);
-    const finalStatuses: string[] = Jira.getFinalStatuses(config);
+    const statusNames: string[] = config.statuses.map(status => status.name);
+    const finalStatusNames: string[] = Jira.getFinalStatusNames(config);
 
-    if (finalStatuses.length === 0) {
+    if (finalStatusNames.length === 0) {
         console.error("No statuses marked as final. This is required for the script to work.");
         console.error('See readme.md and the section of "Status JSON Structure" for more info.');
         process.exit(1);
@@ -66,7 +66,7 @@ async function script(config: Config, argv: Argv) {
         process.exit(0);
     }
 
-    const strings = await script.getIssueTimeStrings(issues, statuses, finalStatuses, showSummary());
+    const strings = await script.getIssueTimeStrings(issues, statusNames, finalStatusNames, showSummary());
 
     if (!file) {
         strings.forEach(line => {
@@ -83,24 +83,24 @@ function prettyPrintDate(date: Date): string {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-function prettyPrintTimes(values: { [key: string]: number }, statuses: string[]): string {
-    return statuses
+function prettyPrintTimes(values: { [key: string]: number }, statusNames: string[]): string {
+    return statusNames
         .map(s => s.toLowerCase())
         .map(s => values[s] || 0)
         .join(",");
 }
 
-function headingString(showSummary: boolean, statuses: string[]): string {
+function headingString(showSummary: boolean, statusNames: string[]): string {
     const headings = [];
     headings.push("Key");
     if (showSummary) headings.push("Summary");
     headings.push("Created");
     headings.push("Finished");
-    headings.push(...statuses);
+    headings.push(...statusNames);
     return headings.join(",");
 }
 
-function issueString(showSummary: boolean, statuses: string[]) {
+function issueString(showSummary: boolean, statusNames: string[]) {
     return (info: IssueTimings): string => {
         const row = [];
         row.push(info.key);
@@ -110,7 +110,7 @@ function issueString(showSummary: boolean, statuses: string[]) {
         }
         row.push(prettyPrintDate(info.created));
         row.push(info.finished ? prettyPrintDate(info.finished) : "");
-        row.push(prettyPrintTimes(info.times, statuses));
+        row.push(prettyPrintTimes(info.times, statusNames));
         return row.join(",");
     };
 }
@@ -118,14 +118,14 @@ function issueString(showSummary: boolean, statuses: string[]) {
 namespace script {
     export function getIssueTimeStrings<IssueWithChangelog extends Issue & HasChangelog>(
         issues: IssueWithChangelog[],
-        statuses: string[],
+        statusNames: string[],
         finalStatuses: string[],
         showSummary: boolean
     ): string[] {
         const infoResults = issues.map(issue => Jira.getIssueTimings(issue, finalStatuses));
 
-        const heading = headingString(showSummary, statuses);
-        const lines = infoResults.map(issueString(showSummary, statuses));
+        const heading = headingString(showSummary, statusNames);
+        const lines = infoResults.map(issueString(showSummary, statusNames));
 
         return [heading].concat(lines);
     }

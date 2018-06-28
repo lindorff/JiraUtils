@@ -207,19 +207,19 @@ describe("Jira", () => {
     describe("getFinalStatuses", () => {
         it("should return an empty array on an empty input", () => {
             const emptyStatusesConfig = config({});
-            const finalStatuses = Jira.getFinalStatuses(emptyStatusesConfig);
+            const finalStatuses = Jira.getFinalStatusNames(emptyStatusesConfig);
             expect(finalStatuses).to.be.empty;
         });
 
         it("should return an empty array on only-name-object input", () => {
             const nameObjectConfig = config({ statuses: [{ name: "foo" }, { name: "bar" }] });
-            const finalStatuses = Jira.getFinalStatuses(nameObjectConfig);
+            const finalStatuses = Jira.getFinalStatusNames(nameObjectConfig);
             expect(finalStatuses).to.be.empty;
         });
 
         it("should return an empty array on object input with explicit isDone=false", () => {
             const nameObjectConfig = config({ statuses: [{ name: "foo", isDone: false }] });
-            const finalStatuses = Jira.getFinalStatuses(nameObjectConfig);
+            const finalStatuses = Jira.getFinalStatusNames(nameObjectConfig);
             expect(finalStatuses).to.be.empty;
         });
 
@@ -227,9 +227,9 @@ describe("Jira", () => {
             const mixedConfig = config({
                 statuses: [{ name: "foo", isDone: false }, { name: "bar" }, { name: "baz", isDone: true }]
             });
-            const finalStatuses = Jira.getFinalStatuses(mixedConfig);
-            expect(finalStatuses).lengthOf(1);
-            expect(finalStatuses).contains("baz");
+            const finalStatusNames = Jira.getFinalStatusNames(mixedConfig);
+            expect(finalStatusNames).lengthOf(1);
+            expect(finalStatusNames).contains("baz");
         });
     });
 });

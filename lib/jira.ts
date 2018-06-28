@@ -182,7 +182,7 @@ export class Jira {
         return true;
     }
 
-    public static getFinalStatuses(config: Config): string[] {
+    public static getFinalStatusNames(config: Config): string[] {
         return config.statuses.filter(status => status.isDone).map(status => status.name);
     }
 }

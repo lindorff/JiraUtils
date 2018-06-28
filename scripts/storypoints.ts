@@ -41,22 +41,22 @@ const script: Script = async (config: Config, argv: Argv) => {
 
     const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
-    const FINAL_STATUSES = Jira.getFinalStatuses(config).map(status => `"${status.toLowerCase()}"`);
+    const FINAL_STATUS_NAMES = Jira.getFinalStatusNames(config).map(status => `"${status.toLowerCase()}"`);
 
-    const IGNORE_STATUSES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
+    const IGNORED_STATUS_NAMES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
 
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
         `project = ${config.project} ` +
             `and type in (${config.scripts.storypoints.types.join(",")}) ` +
             `and "${config.scripts.storypoints.propertyName.jqlName}" > 0 ` +
-            `and status in (${FINAL_STATUSES.join(",")})`,
+            `and status in (${FINAL_STATUS_NAMES.join(",")})`,
         jiraConfig
     );
 
     const issuesWithStoryPointsMap = new Map<string, Issue>();
     issuesWithStoryPoints.forEach(issue => issuesWithStoryPointsMap.set(issue.key, issue));
 
-    const issueTimings = issuesWithStoryPoints.map(issue => Jira.getIssueTimings(issue, FINAL_STATUSES));
+    const issueTimings = issuesWithStoryPoints.map(issue => Jira.getIssueTimings(issue, FINAL_STATUS_NAMES));
 
     const storyPointsObj = {};
 
@@ -82,7 +82,7 @@ const script: Script = async (config: Config, argv: Argv) => {
 
             let millis = 0;
             Object.keys(timing.times).forEach(status => {
-                if (IGNORE_STATUSES.indexOf(status) == -1) {
+                if (IGNORED_STATUS_NAMES.indexOf(status) == -1) {
                     millis += timing.times[status];
                 }
             });
