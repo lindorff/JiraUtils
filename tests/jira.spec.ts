@@ -37,8 +37,15 @@ function historyItem(partial: any): HistoryItem {
     return Object.assign(historyItem, partial);
 }
 
-function statusHistoryItem(partial: any): HistoryItem {
-    const statusHistoryItem = { field: "status", fieldtype: "jira" };
+function statusHistoryItem(partial: any = {}): HistoryItem {
+    const statusHistoryItem = {
+        field: "status",
+        fieldtype: "jira",
+        from: "1",
+        to: "2",
+        fromString: "a",
+        toString: "b"
+    };
     return historyItem(Object.assign(statusHistoryItem, partial));
 }
 
@@ -289,6 +296,27 @@ describe("Jira", () => {
                     `updatedDate >= 2018-01-01 and ` +
                     `updatedDate <= 2018-01-02`
             );
+        });
+    });
+
+    describe("getIssueTimings", () => {
+        describe("property: finished", () => {
+            it("should not be defined if the issue has not finished", () => {
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem()];
+                const timings = Jira.getIssueTimings(exampleIssue, []);
+                expect(timings.finished).to.be.null;
+            });
+
+            it("should be found from a single finishing status change", () => {
+                const FINISH_STATE = "finish";
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINISH_STATE })];
+                exampleIssue.changelog.histories[0].created = "2018-01-01";
+
+                const timings = Jira.getIssueTimings(exampleIssue, [FINISH_STATE]);
+
+                expect(timings.finished).not.to.be.null;
+                expect(timings.finished.getFullYear()).to.equal(2018);
+            });
         });
     });
 });
