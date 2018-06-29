@@ -124,7 +124,11 @@ export class Jira {
 
             const newStatusIsFinalStatus = finalStatuses.indexOf(newStatus) >= 0;
             const prevStatusIsFinalStatus = finalStatuses.indexOf(prevStatus) >= 0;
-            if (newStatusIsFinalStatus && !prevStatusIsFinalStatus) doneTime = newStatusStartTime;
+            if (newStatusIsFinalStatus && !prevStatusIsFinalStatus) {
+                doneTime = newStatusStartTime;
+            } else if (prevStatusIsFinalStatus && !newStatusIsFinalStatus) {
+                doneTime = null;
+            }
 
             prevStatus = newStatus;
             prevStatusStartTime = newStatusStartTime;
