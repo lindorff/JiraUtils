@@ -45,7 +45,7 @@ function statusHistoryItem(partial: any): HistoryItem {
 describe("Jira", () => {
     let exampleIssue: Issue & HasChangelog = null;
     beforeEach(async () => {
-        exampleIssue = <any>await import("./ABC-1.json");
+        exampleIssue = <any>JSON.parse(JSON.stringify(await import("./ABC-1.json")));
     });
 
     describe("getIssueStatusEvents", () => {
