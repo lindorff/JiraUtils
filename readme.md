@@ -1,5 +1,7 @@
 # Jira Utilities
 
+[![Build Status](https://travis-ci.org/lindorff/JiraUtils.svg?branch=master)](https://travis-ci.org/lindorff/JiraUtils)
+
 * [Taking the script into use](#taking-the-script-into-use)  
   * [0: Download Node.js](#0-download-nodejs)
   * [1: Download the script](#1-download-the-script)
