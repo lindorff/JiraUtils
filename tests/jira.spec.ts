@@ -301,31 +301,36 @@ describe("Jira", () => {
 
     describe("getIssueTimings", () => {
         describe("property: finished", () => {
-            it("should not be defined if the issue has not finished", () => {
+            it("should be null if the issue has not finished", () => {
                 exampleIssue.changelog.histories[0].items = [statusHistoryItem()];
                 const timings = Jira.getIssueTimings(exampleIssue, []);
                 expect(timings.finished).to.be.null;
             });
 
             it("should be found from a single finishing status change", () => {
-                const FINISH_STATE = "finish";
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINISH_STATE })];
+                const FINAL_STATUS = "finish";
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINISH_STATE]);
+                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
 
                 expect(timings.finished).not.to.be.null;
                 expect(timings.finished.getFullYear()).to.equal(2018);
             });
 
             it("should be the first one of many concurrent, same, finishing statuses", () => {
-                const FINISH_STATE = "finish";
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINISH_STATE })];
+                const FINAL_STATUS = "finish";
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
-                exampleIssue.changelog.histories[1].items = [statusHistoryItem({ toString: FINISH_STATE })];
+                exampleIssue.changelog.histories[1].items = [
+                    statusHistoryItem({
+                        fromString: FINAL_STATUS,
+                        toString: FINAL_STATUS
+                    })
+                ];
                 exampleIssue.changelog.histories[1].created = "2018-01-02";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINISH_STATE]);
+                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
 
                 expect(timings.finished).not.to.be.null;
                 expect(timings.finished.getFullYear()).to.equal(2018);
@@ -333,14 +338,19 @@ describe("Jira", () => {
             });
 
             it("should be the first one of many concurrent, different, finishing statuses", () => {
-                const FINISH_STATE1 = "finish1";
-                const FINISH_STATE2 = "finish2";
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINISH_STATE1 })];
+                const FINAL_STATUS1 = "finish1";
+                const FINAL_STATUS2 = "finish2";
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS1 })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
-                exampleIssue.changelog.histories[1].items = [statusHistoryItem({ toString: FINISH_STATE2 })];
+                exampleIssue.changelog.histories[1].items = [
+                    statusHistoryItem({
+                        fromString: FINAL_STATUS1,
+                        toString: FINAL_STATUS2
+                    })
+                ];
                 exampleIssue.changelog.histories[1].created = "2018-01-02";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINISH_STATE1, FINISH_STATE2]);
+                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS1, FINAL_STATUS2]);
 
                 expect(timings.finished).not.to.be.null;
                 expect(timings.finished.getFullYear()).to.equal(2018);
@@ -348,14 +358,14 @@ describe("Jira", () => {
             });
 
             it("should be null if the issue has become un-finished", () => {
-                const FINISH_STATE = "finish";
-                const NOT_FINISH_STATE = "foo";
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINISH_STATE })];
+                const FINAL_STATUS = "finish";
+                const NOT_FINAL_STATUS = "foo";
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
-                exampleIssue.changelog.histories[1].items = [statusHistoryItem({ toString: NOT_FINISH_STATE })];
+                exampleIssue.changelog.histories[1].items = [statusHistoryItem({ toString: NOT_FINAL_STATUS })];
                 exampleIssue.changelog.histories[1].created = "2018-01-02";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINISH_STATE]);
+                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
 
                 expect(timings.finished).to.be.null;
             });
