@@ -111,7 +111,7 @@ There are currently three supported scripts. Each have their own configuration s
 | ---------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `propertyName.jqlName` | The name of the field, as you would search for them with JQL                                               |
 | `propertyName.apiName` | The name of the field as it is returned via the REST API                                                   |
-| `types`                | The types of issues that you are interested in                                                             |
+| `types`                | The types of issues that you are interested in. Leave as an empty array to get all issues.                 |
 | `ignoreStatuses`       | Which statuses not to count towards the in-progress time                                                   |
 | `output`               | The file where to write the resulting CSV. This can be overridden with a `--output` command-line parameter |
 
