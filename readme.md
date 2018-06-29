@@ -2,23 +2,23 @@
 
 [![Build Status](https://travis-ci.org/lindorff/JiraUtils.svg?branch=master)](https://travis-ci.org/lindorff/JiraUtils)
 
-* [Taking the script into use](#taking-the-script-into-use)  
-  * [0: Download Node.js](#0-download-nodejs)
-  * [1: Download the script](#1-download-the-script)
-  * [2: Installation](#2-installation)
-  * [3: Run the script](#3-run-the-script)
-* [Configuration](#configuration)
-  * [config.jira.json](#configjirajson)
-  * [config.project.*.json](#configprojectjson)
-  * [Status JSON Structure](#status-json-structure)
-  * [Script Configurations](#script-configurations)
-    * [Donetickets](#donetickets)
-    * [Leadtime](#leadtime)
-    * [Storypoints](#storypoints)
-* [Script Descriptions](#script-descriptions)
-  * [Donetickets](#donetickets-1)
-  * [Leadtime](#leadtime-1)
-  * [Storypoints](#storypoints-1)
+-   [Taking the script into use](#taking-the-script-into-use)
+    -   [0: Download Node.js](#0-download-nodejs)
+    -   [1: Download the script](#1-download-the-script)
+    -   [2: Installation](#2-installation)
+    -   [3: Run the script](#3-run-the-script)
+-   [Configuration](#configuration)
+    -   [config.jira.json](#configjirajson)
+    -   [config.project.\*.json](#configprojectjson)
+    -   [Status JSON Structure](#status-json-structure)
+    -   [Script Configurations](#script-configurations)
+        -   [Donetickets](#donetickets)
+        -   [Leadtime](#leadtime)
+        -   [Storypoints](#storypoints)
+-   [Script Descriptions](#script-descriptions)
+    -   [Donetickets](#donetickets-1)
+    -   [Leadtime](#leadtime-1)
+    -   [Storypoints](#storypoints-1)
 
 This script scrapes the Lindorff JIRA to get times on how long a ticket has been in any particular status.
 
@@ -68,7 +68,7 @@ This file contains all of the information that will be used to connect to your J
 | `pass` | The password to use when querying Jira. |
 | `url`  | The http/https address to Jira.         |
 
-### config.project.*.json
+### config.project.\*.json
 
 You need to create one of these files per JIRA project and/or workflow you're interested in. You will then use it when running the script; e.g. if you have a file called `config.project.myproject.json`, then you would use that configuration by running the script with
 
@@ -142,6 +142,6 @@ With `leadtime` you can see how many milliseconds issues have been in each of th
 
 ### Storypoints
 
-With `storypoints` you can see how your storypoints correlate with the actual time spent under development. 
+With `storypoints` you can see how your storypoints correlate with the actual time spent under development.
 
 After all, the theory with story points is that they should somehow convert into time. Thus, a 5-pointer take roughly 5x as long as a 1-pointer. This can be interesting feedback to the team about their estimation behavior. Even more interesting is to see how the relationships of various points behave in different windows of time of a team's lifetime: "Are we more accurate in our estimations than a year ago? Why? Why not?"
