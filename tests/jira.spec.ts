@@ -232,4 +232,63 @@ describe("Jira", () => {
             expect(finalStatusNames).contains("baz");
         });
     });
+
+    describe("getKeysLandedInStatusDuringTimePeriod", () => {
+        it("should query all issue types, if no types are given", async () => {
+            // capture JQL by mocking the function call
+            let jql: string = null;
+            Jira.JQL_withChangelog = inputJQL => {
+                jql = inputJQL;
+                return Promise.resolve([]);
+            };
+
+            const key = "KEY";
+            const from = new Date("2018-01-01");
+            const to = new Date("2018-01-02");
+            const issueTypes = [];
+            const jiraConfig = <any>{};
+
+            const IGNORE_RESULT = await Jira.getKeysLandedInStatusDuringTimePeriod(
+                key,
+                from,
+                to,
+                [],
+                issueTypes,
+                jiraConfig
+            );
+
+            expect(jql).to.equal(`project = KEY and updatedDate >= 2018-01-01 and updatedDate <= 2018-01-02`);
+        });
+
+        it("should query only the issue types defined", async () => {
+            // capture JQL by mocking the function call
+            let jql: string = null;
+            Jira.JQL_withChangelog = inputJQL => {
+                jql = inputJQL;
+                return Promise.resolve([]);
+            };
+
+            const key = "KEY";
+            const from = new Date("2018-01-01");
+            const to = new Date("2018-01-02");
+            const issueTypes = ["story", "bug"];
+            const jiraConfig = <any>{};
+
+            const IGNORE_RESULT = await Jira.getKeysLandedInStatusDuringTimePeriod(
+                key,
+                from,
+                to,
+                [],
+                issueTypes,
+                jiraConfig
+            );
+
+            expect(jql).to.equal(
+                `project = KEY and ` +
+                    `type in ("story","bug") and ` +
+                    `updatedDate >= 2018-01-01 and ` +
+                    `updatedDate <= 2018-01-02`
+            );
+        });
+    });
 });
