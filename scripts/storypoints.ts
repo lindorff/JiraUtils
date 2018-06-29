@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Jira } from "../lib/jira";
-import { Issue, Config, Argv, Script } from "../lib/interfaces";
+import { Issue, Config, Argv, Script, IssueTimings } from "../lib/interfaces";
 import * as fs from "fs";
 import dateformat from "dateformat";
 import jiraConfig from "../config.jira.json";
@@ -58,7 +58,7 @@ const script: Script = async (config: Config, argv: Argv) => {
 
     const issueTimings = issuesWithStoryPoints.map(issue => Jira.getIssueTimings(issue, FINAL_STATUS_NAMES));
 
-    const storyPointsObj = {};
+    const storyPointsObj: { [storyPoints: string]: IssueTimings[] } = {};
 
     issueTimings.forEach(issueTiming => {
         const issue = issuesWithStoryPointsMap.get(issueTiming.key);
