@@ -14,6 +14,7 @@
         "@types/request-promise-native": "^1.0.5",
         "@types/yargs": "^6.6.0",
         "dateformat": "^3.0.3",
+        "jsonschema": "^1.2.4",
         "request": "^2.81.0",
         "request-promise-native": "^1.0.4",
         "ts-node": "^3.0.4",

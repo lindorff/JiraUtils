@@ -4,6 +4,7 @@
     "description": "The format for configuring this script",
     "type": "object",
     "properties": {
+        "$schema": { "type": "string" },
         "statuses": {
             "description": "The JIRA statuses that will be used to list things.",
             "type": "array",
@@ -16,7 +17,8 @@
                             "name": { "type": "string" },
                             "isDone": { "type": "boolean" }
                         },
-                        "required": ["name"]
+                        "required": ["name"],
+                        "additionalProperties": false
                     }
                 ]
             },
@@ -28,7 +30,8 @@
             "properties": {
                 "leadtime": {
                     "type": "object",
-                    "properties": { "showSummary": { "type": "boolean" } }
+                    "properties": { "showSummary": { "type": "boolean" } },
+                    "additionalProperties": false
                 },
                 "donetickets": {
                     "type": "object",
@@ -39,9 +42,11 @@
                             "items": {
                                 "type": "string"
                             }
-                        }
+                        },
+                        "additionalProperties": false
                     },
-                    "required": ["types"]
+                    "required": ["types"],
+                    "additionalProperties": false
                 },
                 "storypoints": {
                     "type": "object",
@@ -61,21 +66,25 @@
                                 }
                             },
                             "description": "Information about the Story Points field in JIRA",
-                            "required": ["jqlName", "apiName"]
+                            "required": ["jqlName", "apiName"],
+                            "additionalProperties": false
                         },
                         "types": { "type": "array", "items": { "type": "string" } },
                         "ignoreStatuses": { "type": "array", "items": { "type": "string" } },
                         "output": { "type": "string" }
                     },
-                    "required": ["propertyName", "types", "ignoreStatuses"]
+                    "required": ["propertyName", "types", "ignoreStatuses"],
+                    "additionalProperties": false
                 }
             },
-            "required": ["leadtime", "donetickets", "storypoints"]
+            "required": ["leadtime", "donetickets", "storypoints"],
+            "additionalProperties": false
         },
         "project": {
             "description": "The JIRA project name",
             "type": "string"
         }
     },
-    "required": ["statuses", "scripts", "project"]
+    "required": ["statuses", "scripts", "project"],
+    "additionalProperties": false
 }

@@ -19,6 +19,7 @@ import fs from "fs";
 import path from "path";
 import { Config, Script, Argv, ConfigJson } from "./lib/interfaces";
 import { isString } from "util";
+import { validate as validateJsonSchema, ValidationError } from "jsonschema";
 const PROJECT_CONF_REGEX = /^config\.project\.(.*)\.json$/;
 
 namespace runner {
@@ -70,6 +71,40 @@ namespace runner {
         showHint(heading, "Available scripts:", await getScriptNames());
     }
 
+    function printJsonSchemaErrors(filename: string, errors: ValidationError[]): void {
+        const errorLines = errors.map(error => `- ${error.property} ${error.message}`);
+        const file = path.relative(__dirname, filename);
+        const s = errorLines.length > 1 ? "s" : "";
+        console.error(`⚠ The file ${file} has the following formatting error${s}:`);
+        errorLines.forEach(line => console.error(line));
+        console.error();
+    }
+
+    async function getConfig(name: string): Promise<Config> {
+        try {
+            const jsonFileName = path.resolve(`./config.project.${name}.json`);
+            const configJson: ConfigJson = await import(jsonFileName);
+
+            // TS creates the default property automatically, but
+            // 1) we don't need it, and
+            // 2) it messes up the validation
+            delete (<any>configJson).default;
+
+            const validationErrors = validateJsonSchema(configJson, await import("./_schema.project.json"));
+            if (validationErrors.errors.length === 0) {
+                return convertJsonToConfig(configJson);
+            } else {
+                printJsonSchemaErrors(jsonFileName, validationErrors.errors);
+                return null;
+            }
+        } catch (e) {
+            if (e instanceof Error && e.message.startsWith("Cannot find module")) {
+                await showProjectsHint("No such project: " + name);
+                return null;
+            } else throw e;
+        }
+    }
+
     export async function run(argv: Argv) {
         const scriptName = argv._[0];
         const projectName = argv.project;
@@ -78,14 +113,8 @@ namespace runner {
 
         let error = false;
         if (projectName) {
-            try {
-                config = convertJsonToConfig(await import(`./config.project.${projectName}.json`));
-            } catch (e) {
-                if (e instanceof Error && e.message.startsWith("Cannot find module")) {
-                    await showProjectsHint("No such project: " + projectName);
-                    error = true;
-                } else throw e;
-            }
+            config = await getConfig(projectName);
+            if (config === null) error = true;
         } else {
             await showProjectsHint("You need to give the --project parameter");
             error = true;
