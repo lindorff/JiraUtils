@@ -17,7 +17,7 @@ limitations under the License.
 import yargs from "yargs";
 import fs from "fs";
 import path from "path";
-import { Config, Script, Argv, ConfigJson } from "./lib/interfaces";
+import { Config, Script, Argv, ConfigJson, JiraConfig } from "./lib/interfaces";
 import { isString } from "util";
 import { validate as validateJsonSchema, ValidationError } from "jsonschema";
 const PROJECT_CONF_REGEX = /^config\.project\.(.*)\.json$/;
@@ -54,12 +54,6 @@ namespace runner {
         return newScriptArgv;
     }
 
-    function convertJsonToConfig(configJson: ConfigJson): Config {
-        const config = JSON.parse(JSON.stringify(configJson));
-        config.statuses = configJson.statuses.map(name => (isString(name) ? { name } : name));
-        return config;
-    }
-
     function showHint(heading1: string, heading2: string, items: string[]) {
         console.error(ANSI_YELLOW_BRIGHT + heading1 + ANSI_RESET);
         console.error(heading2);
@@ -88,41 +82,62 @@ namespace runner {
         console.error();
     }
 
-    async function getConfig(name: string): Promise<Config> {
+    async function getValidatedJson<T>(
+        jsonFilename: string,
+        schemaFilename: string,
+        noSuchFileCB: () => any
+    ): Promise<T> {
         try {
-            const jsonFileName = path.resolve(`./config.project.${name}.json`);
-            const configJson: ConfigJson = await import(jsonFileName);
+            const schema = await import(schemaFilename);
+            const json: T = await import(jsonFilename);
 
             // TS creates the default property automatically, but
             // 1) we don't need it, and
             // 2) it messes up the validation
-            delete (<any>configJson).default;
+            delete (<any>json).default;
 
-            const validationErrors = validateJsonSchema(configJson, await import("./_schema.project.json"));
-            if (validationErrors.errors.length === 0) {
-                return convertJsonToConfig(configJson);
+            const validatorResult = validateJsonSchema(json, schema);
+            if (validatorResult.errors.length === 0) {
+                return JSON.parse(JSON.stringify(json)); // return copy
             } else {
-                printJsonSchemaErrors(jsonFileName, validationErrors.errors);
+                printJsonSchemaErrors(jsonFilename, validatorResult.errors);
                 return null;
             }
         } catch (e) {
             if (e instanceof Error && e.message.startsWith("Cannot find module")) {
-                await showProjectsHint("No such project: " + name);
+                await noSuchFileCB();
                 return null;
             } else throw e;
         }
     }
 
+    async function getJiraConfig(): Promise<JiraConfig> {
+        return await getValidatedJson<JiraConfig>("./config.jira.json", "./_schema.jira.json", () =>
+            console.error(`${ANSI_YELLOW_BRIGHT}⚠ ${ANSI_RED}config.jira.json not found${ANSI_RESET}\n`)
+        );
+    }
+
+    async function getProjectConfig(name: string): Promise<Config> {
+        const json = await getValidatedJson<ConfigJson>(
+            `./config.project.${name}.json`,
+            "./_schema.project.json",
+            async () => await showProjectsHint("No such project: " + name)
+        );
+        if (json) json.statuses = json.statuses.map(name => (isString(name) ? { name } : name));
+        return <Config>json;
+    }
+
     export async function run(argv: Argv) {
         const scriptName = argv._[0];
         const projectName = argv.project;
-        let config: Config;
+        const jiraConfig = await getJiraConfig();
+        let projectConfig: Config;
         let scriptModule: { default: Script };
 
         let error = false;
         if (projectName) {
-            config = await getConfig(projectName);
-            if (config === null) error = true;
+            projectConfig = await getProjectConfig(projectName);
+            if (projectConfig === null) error = true;
         } else {
             await showProjectsHint("You need to give the --project parameter");
             error = true;
@@ -149,7 +164,7 @@ namespace runner {
         }
 
         try {
-            await scriptModule.default(config, removeThisScriptArguments(argv));
+            await scriptModule.default(projectConfig, removeThisScriptArguments(argv));
         } catch (e) {
             throw e;
         }

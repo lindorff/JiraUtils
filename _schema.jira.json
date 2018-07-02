@@ -4,6 +4,7 @@
     "description": "Configuration for connectig to your local JIRA installation",
     "type": "object",
     "properties": {
+        "$schema": { "type": "string" },
         "user": {
             "type": "string",
             "description": "The JIRA username to connect to"
@@ -16,5 +17,6 @@
             "type": "string",
             "description": "The URL in which your JIRA instance lives in (e.g. \"https://jira.example.com\")"
         }
-    }
+    },
+    "additionalProperties": false
 }
