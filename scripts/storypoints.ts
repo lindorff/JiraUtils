@@ -18,12 +18,14 @@ import { Jira } from "../lib/jira";
 import { Issue, Config, Argv, Script, IssueTimings } from "../lib/interfaces";
 import * as fs from "fs";
 import dateformat from "dateformat";
-import jiraConfig from "../config.jira.json";
 
 const script: Script = async (config: Config, argv: Argv) => {
+    const projectConfig = config.project;
+    const jiraConfig = config.jira;
+
     function getOutputFileName(): string {
         const fromArgv = argv.output;
-        const fromConfig = config.scripts.storypoints.output;
+        const fromConfig = projectConfig.scripts.storypoints.output;
 
         if (fromArgv) {
             return fromArgv;
@@ -41,14 +43,14 @@ const script: Script = async (config: Config, argv: Argv) => {
 
     const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
-    const FINAL_STATUS_NAMES = Jira.getFinalStatusNames(config).map(status => `"${status.toLowerCase()}"`);
+    const FINAL_STATUS_NAMES = Jira.getFinalStatusNames(projectConfig).map(status => `"${status.toLowerCase()}"`);
 
-    const IGNORED_STATUS_NAMES = config.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
+    const IGNORED_STATUS_NAMES = projectConfig.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
 
     const issuesWithStoryPoints = await Jira.JQL_withChangelog(
-        `project = ${config.project} ` +
-            `and type in (${config.scripts.storypoints.types.join(",")}) ` +
-            `and "${config.scripts.storypoints.propertyName.jqlName}" > 0 ` +
+        `project = ${projectConfig.project} ` +
+            `and type in (${projectConfig.scripts.storypoints.types.join(",")}) ` +
+            `and "${projectConfig.scripts.storypoints.propertyName.jqlName}" > 0 ` +
             `and status in (${FINAL_STATUS_NAMES.join(",")})`,
         jiraConfig
     );
@@ -62,7 +64,7 @@ const script: Script = async (config: Config, argv: Argv) => {
 
     issueTimings.forEach(issueTiming => {
         const issue = issuesWithStoryPointsMap.get(issueTiming.key);
-        const storyPoints = <number>issue.fields[config.scripts.storypoints.propertyName.apiName];
+        const storyPoints = <number>issue.fields[projectConfig.scripts.storypoints.propertyName.apiName];
 
         let timings = storyPointsObj[storyPoints];
         if (!timings) {

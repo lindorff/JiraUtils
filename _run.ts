@@ -17,7 +17,7 @@ limitations under the License.
 import yargs from "yargs";
 import fs from "fs";
 import path from "path";
-import { Config, Script, Argv, ConfigJson, JiraConfig } from "./lib/interfaces";
+import { Config, Script, Argv, ConfigJson, JiraConfig, ProjectConfig } from "./lib/interfaces";
 import { isString } from "util";
 import { validate as validateJsonSchema, ValidationError } from "jsonschema";
 const PROJECT_CONF_REGEX = /^config\.project\.(.*)\.json$/;
@@ -117,21 +117,21 @@ namespace runner {
         );
     }
 
-    async function getProjectConfig(name: string): Promise<Config> {
+    async function getProjectConfig(name: string): Promise<ProjectConfig> {
         const json = await getValidatedJson<ConfigJson>(
             `./config.project.${name}.json`,
             "./_schema.project.json",
             async () => await showProjectsHint("No such project: " + name)
         );
         if (json) json.statuses = json.statuses.map(name => (isString(name) ? { name } : name));
-        return <Config>json;
+        return <ProjectConfig>json;
     }
 
     export async function run(argv: Argv) {
         const scriptName = argv._[0];
         const projectName = argv.project;
         const jiraConfig = await getJiraConfig();
-        let projectConfig: Config;
+        let projectConfig: ProjectConfig;
         let scriptModule: { default: Script };
 
         let error = false;
@@ -164,7 +164,8 @@ namespace runner {
         }
 
         try {
-            await scriptModule.default(projectConfig, removeThisScriptArguments(argv));
+            const config: Config = { jira: jiraConfig, project: projectConfig };
+            await scriptModule.default(config, removeThisScriptArguments(argv));
         } catch (e) {
             throw e;
         }

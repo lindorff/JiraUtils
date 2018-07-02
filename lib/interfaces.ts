@@ -86,11 +86,16 @@ export interface IssueTimings {
     };
 }
 
+export interface Config {
+    jira: JiraConfig;
+    project: ProjectConfig;
+}
+
 export interface ConfigJson extends ConfigBase {
     statuses: (string | { name: string; isDone?: boolean })[];
 }
 
-export interface Config extends ConfigBase {
+export interface ProjectConfig extends ConfigBase {
     statuses: { name: string; isDone?: boolean }[];
 }
 
