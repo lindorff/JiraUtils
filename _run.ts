@@ -22,6 +22,10 @@ import { isString } from "util";
 import { validate as validateJsonSchema, ValidationError } from "jsonschema";
 const PROJECT_CONF_REGEX = /^config\.project\.(.*)\.json$/;
 
+const ANSI_RED = "\u001b[31;1m";
+const ANSI_YELLOW_BRIGHT = "\u001b[33;1m";
+const ANSI_RESET = "\u001b[0m";
+
 namespace runner {
     function readdir(path = __dirname): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
@@ -57,7 +61,7 @@ namespace runner {
     }
 
     function showHint(heading1: string, heading2: string, items: string[]) {
-        console.error(heading1);
+        console.error(ANSI_YELLOW_BRIGHT + heading1 + ANSI_RESET);
         console.error(heading2);
         items.forEach(name => console.error(`- ${name}`));
         console.error();
@@ -75,8 +79,12 @@ namespace runner {
         const errorLines = errors.map(error => `- ${error.property} ${error.message}`);
         const file = path.relative(__dirname, filename);
         const s = errorLines.length > 1 ? "s" : "";
-        console.error(`⚠ The file ${file} has the following formatting error${s}:`);
-        errorLines.forEach(line => console.error(line));
+        console.error(
+            `${ANSI_YELLOW_BRIGHT}⚠ ` +
+                `${ANSI_RED}The file ${file} has the following formatting error${s}:` +
+                ANSI_RESET
+        );
+        errorLines.forEach(line => console.error(ANSI_RED + line + ANSI_RESET));
         console.error();
     }
 
@@ -135,7 +143,7 @@ namespace runner {
         }
 
         if (error) {
-            console.error("Syntax:");
+            console.error(ANSI_YELLOW_BRIGHT + "Syntax:" + ANSI_RESET);
             console.error("run --project=<project> <script> <<script parameters>>");
             process.exit(1);
         }
