@@ -16,11 +16,11 @@ limitations under the License.
 
 import { expect } from "chai";
 import "mocha";
-import { Issue, HasChangelog, HistoryItem, Config } from "../lib/interfaces";
+import { Issue, HasChangelog, HistoryItem, ProjectConfig } from "../lib/interfaces";
 import { getIssueStatusEvents, returnKeyIfCompletedDuringTheDate, Jira } from "../lib/jira";
 
-function config(partial: any): Config {
-    const emptyConfig: Config = {
+function config(partial: any): ProjectConfig {
+    const emptyConfig: ProjectConfig = {
         project: null,
         statuses: [],
         scripts: {

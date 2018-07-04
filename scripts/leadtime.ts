@@ -17,15 +17,17 @@ limitations under the License.
 import { Jira } from "../lib/jira";
 import { Issue, HasChangelog, Config, Argv, Script, IssueTimings } from "../lib/interfaces";
 import * as fs from "fs";
-import jiraConfig from "../config.jira.json";
 
 async function script(config: Config, argv: Argv) {
+    const projectConfig = config.project;
+    const jiraConfig = config.jira;
+
     let keys = <string[]>(argv.query ? [] : argv._);
     const query = <string>(argv.query ? argv.query : null);
     const file = <string>(argv.file ? argv.file : null);
 
-    const statusNames: string[] = config.statuses.map(status => status.name);
-    const finalStatusNames: string[] = Jira.getFinalStatusNames(config);
+    const statusNames: string[] = projectConfig.statuses.map(status => status.name);
+    const finalStatusNames: string[] = Jira.getFinalStatusNames(projectConfig);
 
     if (finalStatusNames.length === 0) {
         console.error("No statuses marked as final. This is required for the script to work.");
@@ -39,7 +41,7 @@ async function script(config: Config, argv: Argv) {
         } else if (argv.hideSummary) {
             return false;
         } else {
-            const showSummary = config.scripts.leadtime.showSummary;
+            const showSummary = projectConfig.scripts.leadtime.showSummary;
             return showSummary !== undefined ? showSummary : false;
         }
     }

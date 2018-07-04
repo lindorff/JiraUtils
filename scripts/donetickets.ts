@@ -16,11 +16,12 @@ limitations under the License.
 
 import { Jira } from "../lib/jira";
 import { Config, Argv, Script } from "../lib/interfaces";
-import jiraConfig from "../config.jira.json";
 
 const script: Script = async (config: Config, argv: Argv) => {
-    const project = config.project;
-    const completed = config.statuses.filter(status => status.isDone).map(status => status.name);
+    const projectConfig = config.project;
+    const jiraConfig = config.jira;
+    const project = projectConfig.project;
+    const completed = projectConfig.statuses.filter(status => status.isDone).map(status => status.name);
 
     const errors = [];
 
@@ -45,7 +46,7 @@ const script: Script = async (config: Config, argv: Argv) => {
         new Date(from),
         getToDateOrDefault(to),
         completed,
-        config.scripts.donetickets.types,
+        projectConfig.scripts.donetickets.types,
         jiraConfig
     );
 

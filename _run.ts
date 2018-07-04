@@ -17,9 +17,14 @@ limitations under the License.
 import yargs from "yargs";
 import fs from "fs";
 import path from "path";
-import { Config, Script, Argv, ConfigJson } from "./lib/interfaces";
+import { Config, Script, Argv, ConfigJson, JiraConfig, ProjectConfig } from "./lib/interfaces";
 import { isString } from "util";
+import { validate as validateJsonSchema, ValidationError } from "jsonschema";
 const PROJECT_CONF_REGEX = /^config\.project\.(.*)\.json$/;
+
+const ANSI_RED = "\u001b[31;1m";
+const ANSI_YELLOW_BRIGHT = "\u001b[33;1m";
+const ANSI_RESET = "\u001b[0m";
 
 namespace runner {
     function readdir(path = __dirname): Promise<string[]> {
@@ -49,14 +54,8 @@ namespace runner {
         return newScriptArgv;
     }
 
-    function convertJsonToConfig(configJson: ConfigJson): Config {
-        const config = JSON.parse(JSON.stringify(configJson));
-        config.statuses = configJson.statuses.map(name => (isString(name) ? { name } : name));
-        return config;
-    }
-
     function showHint(heading1: string, heading2: string, items: string[]) {
-        console.error(heading1);
+        console.error(ANSI_YELLOW_BRIGHT + heading1 + ANSI_RESET);
         console.error(heading2);
         items.forEach(name => console.error(`- ${name}`));
         console.error();
@@ -70,22 +69,83 @@ namespace runner {
         showHint(heading, "Available scripts:", await getScriptNames());
     }
 
+    function printJsonSchemaErrors(filename: string, errors: ValidationError[]): void {
+        const errorLines = errors.map(error => `- ${error.property} ${error.message}`);
+        const file = path.relative(__dirname, filename);
+        const s = errorLines.length > 1 ? "s" : "";
+        console.error(
+            `${ANSI_YELLOW_BRIGHT}⚠ ` +
+                `${ANSI_RED}The file ${file} has the following formatting error${s}:` +
+                ANSI_RESET
+        );
+        errorLines.forEach(line => console.error(ANSI_RED + line + ANSI_RESET));
+        console.error();
+    }
+
+    async function getValidatedJson<T>(
+        jsonFilename: string,
+        schemaFilename: string,
+        noSuchFileCB: () => any
+    ): Promise<T> {
+        try {
+            async function safeJsonImport<T>(jsonFile: string): Promise<T> {
+                const jsonModule = await import(jsonFile);
+
+                // clone the json module so we don't modify the cached object
+                const safeClone = JSON.parse(JSON.stringify(jsonModule));
+
+                // TS creates the default property automatically, but
+                // 1) we don't need it, and
+                // 2) it messes up the validation
+                delete (<any>safeClone).default;
+                return safeClone;
+            }
+
+            const schema: any = await safeJsonImport<any>(schemaFilename);
+            const json: T = await safeJsonImport<T>(jsonFilename);
+
+            const validatorResult = validateJsonSchema(json, schema);
+            if (validatorResult.errors.length === 0) {
+                return json;
+            } else {
+                printJsonSchemaErrors(jsonFilename, validatorResult.errors);
+                return null;
+            }
+        } catch (e) {
+            if (e instanceof Error && e.message.startsWith("Cannot find module")) {
+                await noSuchFileCB();
+                return null;
+            } else throw e;
+        }
+    }
+
+    async function getJiraConfig(): Promise<JiraConfig> {
+        return await getValidatedJson<JiraConfig>("./config.jira.json", "./_schema.jira.json", () =>
+            console.error(`${ANSI_YELLOW_BRIGHT}⚠ ${ANSI_RED}config.jira.json not found${ANSI_RESET}\n`)
+        );
+    }
+
+    async function getProjectConfig(name: string): Promise<ProjectConfig> {
+        const json = await getValidatedJson<ConfigJson>(
+            `./config.project.${name}.json`,
+            "./_schema.project.json",
+            async () => await showProjectsHint("No such project: " + name)
+        );
+        if (json) json.statuses = json.statuses.map(name => (isString(name) ? { name } : name));
+        return <ProjectConfig>json;
+    }
+
     export async function run(argv: Argv) {
         const scriptName = argv._[0];
         const projectName = argv.project;
-        let config: Config;
+        const jiraConfig = await getJiraConfig();
+        let projectConfig: ProjectConfig;
         let scriptModule: { default: Script };
 
         let error = false;
         if (projectName) {
-            try {
-                config = convertJsonToConfig(await import(`./config.project.${projectName}.json`));
-            } catch (e) {
-                if (e instanceof Error && e.message.startsWith("Cannot find module")) {
-                    await showProjectsHint("No such project: " + projectName);
-                    error = true;
-                } else throw e;
-            }
+            projectConfig = await getProjectConfig(projectName);
+            if (projectConfig === null) error = true;
         } else {
             await showProjectsHint("You need to give the --project parameter");
             error = true;
@@ -106,12 +166,13 @@ namespace runner {
         }
 
         if (error) {
-            console.error("Syntax:");
+            console.error(ANSI_YELLOW_BRIGHT + "Syntax:" + ANSI_RESET);
             console.error("run --project=<project> <script> <<script parameters>>");
             process.exit(1);
         }
 
         try {
+            const config: Config = { jira: jiraConfig, project: projectConfig };
             await scriptModule.default(config, removeThisScriptArguments(argv));
         } catch (e) {
             throw e;
