@@ -19,6 +19,8 @@ import "mocha";
 import { Issue, HasChangelog, HistoryItem, ProjectConfig } from "../lib/interfaces";
 import { getIssueStatusEvents, returnKeyIfCompletedDuringTheDate, Jira } from "../lib/jira";
 
+const A_DAY_IN_MILLIS = 86400000;
+
 function config(partial: any): ProjectConfig {
     const emptyConfig: ProjectConfig = {
         project: null,
@@ -385,6 +387,22 @@ describe("Jira", () => {
 
                 expect(timings.finished).to.be.null;
             });
+        });
+
+        it("should handle data correctly if histories are oldest-first", () => {
+            exampleIssue.changelog.histories[0].created = "2018-01-01";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "1", fromString: "todo", to: "2", toString: "doing" })
+            ];
+
+            exampleIssue.changelog.histories[1].created = "2018-01-02";
+            exampleIssue.changelog.histories[1].items = [
+                statusHistoryItem({ from: "2", fromString: "doing", to: "3", toString: "done" })
+            ];
+
+            const timings = Jira.getIssueTimings(exampleIssue, ["done"]);
+
+            expect(timings.times.doing).to.equal(A_DAY_IN_MILLIS);
         });
     });
 });
