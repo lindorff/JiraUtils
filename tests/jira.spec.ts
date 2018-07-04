@@ -404,5 +404,21 @@ describe("Jira", () => {
 
             expect(timings.times.doing).to.equal(A_DAY_IN_MILLIS);
         });
+
+        it("should handle data correctly if histories are newest-first", () => {
+            exampleIssue.changelog.histories[0].created = "2018-01-02";
+            exampleIssue.changelog.histories[0].items = [
+                statusHistoryItem({ from: "2", fromString: "doing", to: "3", toString: "done" })
+            ];
+
+            exampleIssue.changelog.histories[1].created = "2018-01-01";
+            exampleIssue.changelog.histories[1].items = [
+                statusHistoryItem({ from: "1", fromString: "todo", to: "2", toString: "doing" })
+            ];
+
+            const timings = Jira.getIssueTimings(exampleIssue, ["done"]);
+
+            expect(timings.times.doing).to.equal(A_DAY_IN_MILLIS);
+        });
     });
 });
