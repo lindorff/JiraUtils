@@ -108,15 +108,17 @@ export class Jira {
     }
 
     public static getIssueTimings(issue: Issue & HasChangelog, finalStatuses: string[]): IssueTimings {
-        const statusChangeHistories = getIssueStatusEvents(issue);
-        const issueCreatedDate = new Date(statusChangeHistories[0].created);
+        const statusChangeHistoriesOldestFirst = getIssueStatusEvents(issue).sort(
+            (a, b) => (a.created < b.created ? -1 : 1)
+        );
+        const issueCreatedDate = new Date(statusChangeHistoriesOldestFirst[0].created);
 
         let doneTime: Date = null;
         let prevStatus: string = null;
         let prevStatusStartTime: Date = issueCreatedDate;
         const timeInStatuses: { [status: string]: number } = {};
 
-        statusChangeHistories.forEach(statusChangeHistory => {
+        statusChangeHistoriesOldestFirst.forEach(statusChangeHistory => {
             /* There shouldn't be many status changes in one history entry,
              * but just in case, we'll take the last one */
             const statusChange = statusChangeHistory.items.reverse().find(item => item.field === "status");
