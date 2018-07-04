@@ -122,10 +122,16 @@ export class Jira {
             if (!timeInStatuses[prevStatus]) timeInStatuses[prevStatus] = 0;
             timeInStatuses[prevStatus] += secondsInPreviousStatus;
 
+            const newStatusIsFinalStatus = finalStatuses.indexOf(newStatus) >= 0;
+            const prevStatusIsFinalStatus = finalStatuses.indexOf(prevStatus) >= 0;
+            if (newStatusIsFinalStatus && !prevStatusIsFinalStatus) {
+                doneTime = newStatusStartTime;
+            } else if (prevStatusIsFinalStatus && !newStatusIsFinalStatus) {
+                doneTime = null;
+            }
+
             prevStatus = newStatus;
             prevStatusStartTime = newStatusStartTime;
-
-            if (finalStatuses.indexOf(newStatus) >= 0) doneTime = newStatusStartTime;
         });
 
         const secondsInPreviousStatus = new Date().getTime() - prevStatusStartTime.getTime();
