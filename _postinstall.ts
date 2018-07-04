@@ -16,21 +16,36 @@ limitations under the License.
 
 import * as fs from "fs";
 
-const CONFIG_FILES = fs.readdirSync(__dirname).filter(filename => filename.endsWith(".json.example"));
+function initJiraConfig() {
+    const FILE = "config.jira.json";
+    const FILE_EXAMPLE = FILE + ".example";
+    if (fs.existsSync(FILE)) return;
+    if (!fs.existsSync(FILE_EXAMPLE))
+        throw new Error(FILE_EXAMPLE + " was not found. Try downloading this script again?");
+
+    process.stdout.write(`Writing ${FILE} ... `);
+    fs.createReadStream(FILE_EXAMPLE).pipe(fs.createWriteStream(FILE));
+    process.stdout.write(`ok!\n`);
+}
+
+function initProjectConfig() {
+    const FILE = "config.project._.json";
+    const FILE_EXAMPLE = FILE + ".example";
+    const REGEX = /^config\.project\.[^.]+\.json$/;
+    const someProjectFileExistsAlready = fs.readdirSync(__dirname).filter(filename => filename.match(REGEX)).length > 0;
+    if (someProjectFileExistsAlready) return;
+    if (!fs.existsSync(FILE_EXAMPLE))
+        throw new Error(FILE_EXAMPLE + " was not found. Try downloading this script again?");
+
+    process.stdout.write(`Writing ${FILE} ... `);
+    fs.createReadStream(FILE_EXAMPLE).pipe(fs.createWriteStream(FILE));
+    process.stdout.write(`ok!\n`);
+    console.log("Remember to rename config.project._.json to something like config.project.myProject.json");
+}
 
 try {
-    CONFIG_FILES.forEach(configFile => {
-        const targetFile = configFile.substring(0, configFile.length - ".example".length);
-        process.stdout.write(`${configFile} ... `);
-        if (!fs.existsSync(targetFile)) {
-            process.stdout.write(`writing ${targetFile} ... `);
-            fs.createReadStream(configFile).pipe(fs.createWriteStream(targetFile));
-            process.stdout.write(`ok!`);
-        } else {
-            process.stdout.write(`${targetFile} exists already, skipping.`);
-        }
-        process.stdout.write("\n");
-    });
+    initJiraConfig();
+    initProjectConfig();
 } catch (e) {
     console.error("\n");
     console.error(e);
