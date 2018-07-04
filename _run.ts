@@ -88,17 +88,25 @@ namespace runner {
         noSuchFileCB: () => any
     ): Promise<T> {
         try {
-            const schema = await import(schemaFilename);
-            const json: T = await import(jsonFilename);
+            async function safeJsonImport<T>(jsonFile: string): Promise<T> {
+                const jsonModule = await import(jsonFile);
 
-            // TS creates the default property automatically, but
-            // 1) we don't need it, and
-            // 2) it messes up the validation
-            delete (<any>json).default;
+                // clone the json module so we don't modify the cached object
+                const safeClone = JSON.parse(JSON.stringify(jsonModule));
+
+                // TS creates the default property automatically, but
+                // 1) we don't need it, and
+                // 2) it messes up the validation
+                delete (<any>safeClone).default;
+                return safeClone;
+            }
+
+            const schema: any = await safeJsonImport<any>(schemaFilename);
+            const json: T = await safeJsonImport<T>(jsonFilename);
 
             const validatorResult = validateJsonSchema(json, schema);
             if (validatorResult.errors.length === 0) {
-                return JSON.parse(JSON.stringify(json)); // return copy
+                return json;
             } else {
                 printJsonSchemaErrors(jsonFilename, validatorResult.errors);
                 return null;
