@@ -50,7 +50,7 @@ export function returnKeyIfCompletedDuringTheDate(
             const created = new Date(history.created);
             return from < created && created < to;
         })
-        .sort((a, b) => a.created.localeCompare(b.created));
+        .sort(historySorterOldestFirst);
 
     if (sortedHistoriesDuringPeriod.length === 0) return null;
 
@@ -108,9 +108,7 @@ export class Jira {
     }
 
     public static getIssueTimings(issue: Issue & HasChangelog, finalStatuses: string[]): IssueTimings {
-        const statusChangeHistoriesOldestFirst = getIssueStatusEvents(issue).sort(
-            (a, b) => (a.created < b.created ? -1 : 1)
-        );
+        const statusChangeHistoriesOldestFirst = getIssueStatusEvents(issue).sort(historySorterOldestFirst);
         const issueCreatedDate = new Date(statusChangeHistoriesOldestFirst[0].created);
 
         let doneTime: Date = null;
@@ -198,4 +196,8 @@ export class Jira {
     public static getFinalStatusNames(config: ProjectConfig): string[] {
         return config.statuses.filter(status => status.isDone).map(status => status.name);
     }
+}
+
+function historySorterOldestFirst(a: History, b: History): number {
+    return a.created.localeCompare(b.created);
 }
