@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import "mocha";
-import { expect } from "chai";
 import script from "../scripts/leadtime";
 
 describe("leadtime", () => {
@@ -23,25 +21,25 @@ describe("leadtime", () => {
         it("shows the appropriate headers, without summary, without statuses", () => {
             const outputLines = script.getIssueTimeStrings([], [], [], false);
             const header = outputLines[0];
-            expect(header).to.equal("Key,Created,Finished");
+            expect(header).toBe("Key,Created,Finished");
         });
 
         it("shows the appropriate headers, without summary, with statuses", () => {
             const outputLines = script.getIssueTimeStrings([], ["foo", "bar"], [], false);
             const header = outputLines[0];
-            expect(header).to.equal("Key,Created,Finished,foo,bar");
+            expect(header).toBe("Key,Created,Finished,foo,bar");
         });
 
         it("shows the appropriate headers, with summary, without statuses", () => {
             const outputLines = script.getIssueTimeStrings([], [], [], true);
             const header = outputLines[0];
-            expect(header).to.equal("Key,Summary,Created,Finished");
+            expect(header).toBe("Key,Summary,Created,Finished");
         });
 
         it("shows the appropriate headers, with summary, with statuses", () => {
             const outputLines = script.getIssueTimeStrings([], ["foo", "bar"], [], true);
             const header = outputLines[0];
-            expect(header).to.equal("Key,Summary,Created,Finished,foo,bar");
+            expect(header).toBe("Key,Summary,Created,Finished,foo,bar");
         });
     });
 });
