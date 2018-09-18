@@ -92,11 +92,16 @@ export interface Config {
 }
 
 export interface ConfigJson extends ConfigBase {
-    statuses: (string | { name: string; isDone?: boolean })[];
+    statuses: (string | Status)[];
 }
 
 export interface ProjectConfig extends ConfigBase {
-    statuses: { name: string; isDone?: boolean }[];
+    statuses: Status[];
+}
+
+export interface Status {
+    name: string;
+    isDone?: boolean;
 }
 
 interface ConfigBase {

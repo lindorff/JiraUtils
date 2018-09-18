@@ -21,7 +21,6 @@ const script: Script = async (config: Config, argv: Argv) => {
     const projectConfig = config.project;
     const jiraConfig = config.jira;
     const project = projectConfig.project;
-    const completed = projectConfig.statuses.filter(status => status.isDone).map(status => status.name);
 
     const errors = [];
 
@@ -35,17 +34,18 @@ const script: Script = async (config: Config, argv: Argv) => {
     const from: string = argv["from"];
     const to: string = argv["to"];
 
+    const doneStatusNames = Jira.getFinalStatuses(projectConfig.statuses).map(status => status.name);
     console.log(
-        `Finding JIRA issues that ended up and stayed in the status${completed.length > 1 ? "es" : ""} ${completed.join(
-            ", "
-        )} from project ${project} between ${from} and ${to}`
+        `Finding JIRA issues that ended up and stayed in the status${
+            doneStatusNames.length > 1 ? "es" : ""
+        } ${doneStatusNames.join(", ")} from project ${project} between ${from} and ${to}`
     );
 
     const result = await Jira.getKeysLandedInStatusDuringTimePeriod(
         project,
         new Date(from),
         getToDateOrDefault(to),
-        completed,
+        projectConfig.statuses,
         projectConfig.scripts.donetickets.types,
         jiraConfig
     );
