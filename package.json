@@ -22,14 +22,14 @@
         "yargs": "^8.0.1"
     },
     "devDependencies": {
-        "@types/chai": "^3.5.2",
-        "@types/mocha": "^2.2.41",
-        "chai": "^3.5.0",
-        "mocha": "^3.4.1"
+        "@types/jest": "^23.3.2",
+        "jest": "^23.6.0",
+        "ts-jest": "^23.1.4"
     },
     "scripts": {
         "postinstall": "./node_modules/.bin/ts-node _postinstall.ts",
-        "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.spec.ts"
+        "test": "./node_modules/.bin/jest tests",
+        "test:watch": "./node_modules/.bin/jest --watch tests"
     },
     "author": "Henrik Paul <henrik.paul@lindorff.com>",
     "licenses": [

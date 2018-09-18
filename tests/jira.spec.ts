@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { expect } from "chai";
-import "mocha";
 import { Issue, HasChangelog, HistoryItem, ProjectConfig } from "../lib/interfaces";
 import { getIssueStatusEvents, returnKeyIfCompletedDuringTheDate, Jira } from "../lib/jira";
 
@@ -78,12 +76,12 @@ describe("Jira", () => {
             exampleIssue.changelog.histories[0].items = [historyItem({ field: "status", from: "0", to: "1" })];
 
             const statusEvents = getIssueStatusEvents(exampleIssue);
-            expect(statusEvents).to.have.lengthOf(1);
-            expect(statusEvents[0].items).to.have.lengthOf(1);
+            expect(statusEvents).toHaveLength(1);
+            expect(statusEvents[0].items).toHaveLength(1);
 
             const item = statusEvents[0].items[0];
-            expect(item.from).to.equal("0");
-            expect(item.to).to.equal("1");
+            expect(item.from).toBe("0");
+            expect(item.to).toBe("1");
         });
 
         it("should find many status items", () => {
@@ -93,37 +91,37 @@ describe("Jira", () => {
             ];
 
             const statusEvents = getIssueStatusEvents(exampleIssue);
-            expect(statusEvents).to.have.lengthOf(1);
-            expect(statusEvents[0].items).to.have.lengthOf(2);
+            expect(statusEvents).toHaveLength(1);
+            expect(statusEvents[0].items).toHaveLength(2);
 
             const item1 = statusEvents[0].items[0];
-            expect(item1.from).to.equal("0");
-            expect(item1.to).to.equal("1");
+            expect(item1.from).toBe("0");
+            expect(item1.to).toBe("1");
 
             const item2 = statusEvents[0].items[1];
-            expect(item2.from).to.equal("2");
-            expect(item2.to).to.equal("3");
+            expect(item2.from).toBe("2");
+            expect(item2.to).toBe("3");
         });
 
         it("should discard any non-status items", () => {
             exampleIssue.changelog.histories[0].items = [historyItem({ field: "foo", from: "0", to: "1" })];
 
             const statusEvents = getIssueStatusEvents(exampleIssue);
-            expect(statusEvents).to.have.lengthOf(0);
+            expect(statusEvents).toHaveLength(0);
         });
 
         it("should discard any status items without to/from fields", () => {
             exampleIssue.changelog.histories[0].items = [historyItem({ field: "status" })];
 
             const statusEvents = getIssueStatusEvents(exampleIssue);
-            expect(statusEvents).to.have.lengthOf(0);
+            expect(statusEvents).toHaveLength(0);
         });
 
         it("should discard any status items with the same to and from fields", () => {
             exampleIssue.changelog.histories[0].items = [historyItem({ field: "status", from: "0", to: "0" })];
 
             const statusEvents = getIssueStatusEvents(exampleIssue);
-            expect(statusEvents).to.have.lengthOf(0);
+            expect(statusEvents).toHaveLength(0);
         });
     });
 
@@ -138,7 +136,7 @@ describe("Jira", () => {
             const to = new Date("2017-01-03");
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
-            expect(key).to.equal("ABC-1");
+            expect(key).toBe("ABC-1");
         });
 
         it("should return null if the issue is completed before the date interval", () => {
@@ -151,7 +149,7 @@ describe("Jira", () => {
             const to = new Date("2017-01-03");
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
-            expect(key).to.be.null;
+            expect(key).toBeNull();
         });
 
         it("should return null if the issue is completed after the date interval", () => {
@@ -164,7 +162,7 @@ describe("Jira", () => {
             const to = new Date("2017-01-03");
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
-            expect(key).to.be.null;
+            expect(key).toBeNull();
         });
 
         it("should return null if the issue is not completed at the end of the period, even if it's once done during it", () => {
@@ -181,7 +179,7 @@ describe("Jira", () => {
             const to = new Date("2017-01-03");
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
-            expect(key).to.be.null;
+            expect(key).toBeNull();
         });
 
         it("should return key if the issue is completed at the end of the period, even if it's changed done after it", () => {
@@ -198,7 +196,7 @@ describe("Jira", () => {
             const to = new Date("2017-01-03");
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
-            expect(key).to.equal("ABC-1");
+            expect(key).toBe("ABC-1");
         });
 
         it("should return null if the issue is completed before the period, and changed during it", () => {
@@ -215,7 +213,7 @@ describe("Jira", () => {
             const to = new Date("2017-01-03");
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
-            expect(key).to.be.null;
+            expect(key).toBeNull();
         });
 
         it("should return null if the issue has no transitions", () => {
@@ -225,7 +223,7 @@ describe("Jira", () => {
             const to = new Date("2017-01-03");
 
             const key = returnKeyIfCompletedDuringTheDate(exampleIssue, ["finish"], from, to);
-            expect(key).to.be.null;
+            expect(key).toBeNull();
         });
     });
 
@@ -233,19 +231,19 @@ describe("Jira", () => {
         it("should return an empty array on an empty input", () => {
             const emptyStatusesConfig = config({});
             const finalStatuses = Jira.getFinalStatusNames(emptyStatusesConfig);
-            expect(finalStatuses).to.be.empty;
+            expect(finalStatuses).toHaveLength(0);
         });
 
         it("should return an empty array on only-name-object input", () => {
             const nameObjectConfig = config({ statuses: [{ name: "foo" }, { name: "bar" }] });
             const finalStatuses = Jira.getFinalStatusNames(nameObjectConfig);
-            expect(finalStatuses).to.be.empty;
+            expect(finalStatuses).toHaveLength(0);
         });
 
         it("should return an empty array on object input with explicit isDone=false", () => {
             const nameObjectConfig = config({ statuses: [{ name: "foo", isDone: false }] });
             const finalStatuses = Jira.getFinalStatusNames(nameObjectConfig);
-            expect(finalStatuses).to.be.empty;
+            expect(finalStatuses).toHaveLength(0);
         });
 
         it("should return the isDone status from the mixed input", () => {
@@ -253,8 +251,8 @@ describe("Jira", () => {
                 statuses: [{ name: "foo", isDone: false }, { name: "bar" }, { name: "baz", isDone: true }]
             });
             const finalStatusNames = Jira.getFinalStatusNames(mixedConfig);
-            expect(finalStatusNames).lengthOf(1);
-            expect(finalStatusNames).contains("baz");
+            expect(finalStatusNames).toHaveLength(1);
+            expect(finalStatusNames).toContain("baz");
         });
     });
 
@@ -282,7 +280,7 @@ describe("Jira", () => {
                 jiraConfig
             );
 
-            expect(jql).to.equal(`project = KEY and updatedDate >= 2018-01-01 and updatedDate <= 2018-01-02`);
+            expect(jql).toBe(`project = KEY and updatedDate >= 2018-01-01 and updatedDate <= 2018-01-02`);
         });
 
         it("should query only the issue types defined", async () => {
@@ -308,7 +306,7 @@ describe("Jira", () => {
                 jiraConfig
             );
 
-            expect(jql).to.equal(
+            expect(jql).toBe(
                 `project = KEY and ` +
                     `type in ("story","bug") and ` +
                     `updatedDate >= 2018-01-01 and ` +
@@ -322,7 +320,7 @@ describe("Jira", () => {
             it("should be null if the issue has not finished", () => {
                 exampleIssue.changelog.histories[0].items = [statusHistoryItem()];
                 const timings = Jira.getIssueTimings(exampleIssue, []);
-                expect(timings.finished).to.be.null;
+                expect(timings.finished).toBeNull();
             });
 
             it("should be found from a single finishing status change", () => {
@@ -332,8 +330,8 @@ describe("Jira", () => {
 
                 const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
 
-                expect(timings.finished).not.to.be.null;
-                expect(timings.finished.getFullYear()).to.equal(2018);
+                expect(timings.finished).not.toBeNull();
+                expect(timings.finished.getFullYear()).toBe(2018);
             });
 
             it("should be the first one of many concurrent, same, finishing statuses", () => {
@@ -350,9 +348,9 @@ describe("Jira", () => {
 
                 const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
 
-                expect(timings.finished).not.to.be.null;
-                expect(timings.finished.getFullYear()).to.equal(2018);
-                expect(timings.finished.getDate()).to.equal(1);
+                expect(timings.finished).not.toBeNull();
+                expect(timings.finished.getFullYear()).toBe(2018);
+                expect(timings.finished.getDate()).toBe(1);
             });
 
             it("should be the first one of many concurrent, different, finishing statuses", () => {
@@ -370,9 +368,9 @@ describe("Jira", () => {
 
                 const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS1, FINAL_STATUS2]);
 
-                expect(timings.finished).not.to.be.null;
-                expect(timings.finished.getFullYear()).to.equal(2018);
-                expect(timings.finished.getDate()).to.equal(1);
+                expect(timings.finished).not.toBeNull();
+                expect(timings.finished.getFullYear()).toBe(2018);
+                expect(timings.finished.getDate()).toBe(1);
             });
 
             it("should be null if the issue has become un-finished", () => {
@@ -385,7 +383,7 @@ describe("Jira", () => {
 
                 const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
 
-                expect(timings.finished).to.be.null;
+                expect(timings.finished).toBeNull();
             });
         });
 
@@ -402,7 +400,7 @@ describe("Jira", () => {
 
             const timings = Jira.getIssueTimings(exampleIssue, ["done"]);
 
-            expect(timings.times.doing).to.equal(A_DAY_IN_MILLIS);
+            expect(timings.times.doing).toBe(A_DAY_IN_MILLIS);
         });
 
         it("should handle data correctly if histories are newest-first", () => {
@@ -418,7 +416,7 @@ describe("Jira", () => {
 
             const timings = Jira.getIssueTimings(exampleIssue, ["done"]);
 
-            expect(timings.times.doing).to.equal(A_DAY_IN_MILLIS);
+            expect(timings.times.doing).toBe(A_DAY_IN_MILLIS);
         });
     });
 });

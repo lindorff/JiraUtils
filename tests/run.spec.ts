@@ -16,8 +16,6 @@ limitations under the License.
 
 import { Argv } from "../lib/interfaces";
 import runner from "../_run";
-import { expect } from "chai";
-import "mocha";
 
 describe("runner", () => {
     describe("removeThisScriptArguments", () => {
@@ -25,9 +23,9 @@ describe("runner", () => {
             const argv: Argv = { $0: "run", project: "project", _: ["child-script"] };
             const scriptArgv = runner.removeThisScriptArguments(argv);
 
-            expect(scriptArgv.$0).to.equal("child-script");
-            expect(scriptArgv._).to.be.empty;
-            expect(scriptArgv.project).to.be.undefined;
+            expect(scriptArgv.$0).toBe("child-script");
+            expect(scriptArgv._).toHaveLength(0);
+            expect(scriptArgv.project).toBeUndefined();
         });
     });
 });
