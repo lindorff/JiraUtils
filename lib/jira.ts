@@ -14,15 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {
-    Issue,
-    HasChangelog,
-    IssueQueryResponse,
-    JiraConfig,
-    IssueTimings,
-    History,
-    ProjectConfig
-} from "./interfaces";
+import { Issue, HasChangelog, IssueQueryResponse, JiraConfig, IssueTimings, History, Status } from "./interfaces";
 import request from "request-promise-native";
 import dateFormat from "dateformat";
 
@@ -39,12 +31,10 @@ export function getIssueStatusEvents(issue: Issue & HasChangelog): History[] {
 
 export function returnKeyIfCompletedDuringTheDate(
     issue: Issue & HasChangelog,
-    doneStatuses: string[],
+    statuses: Status[],
     from: Date,
     to: Date
 ): string {
-    doneStatuses = doneStatuses.map(status => status.toLowerCase());
-
     const sortedHistoriesDuringPeriod = getIssueStatusEvents(issue)
         .filter(history => {
             const created = new Date(history.created);
@@ -55,8 +45,8 @@ export function returnKeyIfCompletedDuringTheDate(
     if (sortedHistoriesDuringPeriod.length === 0) return null;
 
     const lastHistoryDuringPeriod = sortedHistoriesDuringPeriod[sortedHistoriesDuringPeriod.length - 1];
-    const finishingLastHistories = lastHistoryDuringPeriod.items.filter(
-        item => doneStatuses.indexOf(item.toString.toLowerCase()) >= 0
+    const finishingLastHistories = lastHistoryDuringPeriod.items.filter(item =>
+        Jira.isDoneStatus(statuses, item.toString)
     );
     const lastHistoryDuringPeriodIsAFinishingHistory = finishingLastHistories.length > 0;
 
@@ -107,7 +97,7 @@ export class Jira {
         return collector;
     }
 
-    public static getIssueTimings(issue: Issue & HasChangelog, finalStatuses: string[]): IssueTimings {
+    public static getIssueTimings(issue: Issue & HasChangelog, statuses: Status[]): IssueTimings {
         const statusChangeHistories = getIssueStatusEvents(issue).sort(historySorterOldestFirst);
         const issueCreatedDate = new Date(statusChangeHistories[0].created);
 
@@ -130,11 +120,11 @@ export class Jira {
             if (!timeInStatuses[prevStatus]) timeInStatuses[prevStatus] = 0;
             timeInStatuses[prevStatus] += secondsInPreviousStatus;
 
-            const newStatusIsFinalStatus = finalStatuses.indexOf(newStatus) >= 0;
-            const prevStatusIsFinalStatus = finalStatuses.indexOf(prevStatus) >= 0;
-            if (newStatusIsFinalStatus && !prevStatusIsFinalStatus) {
+            const newStatusIsDoneStatus = this.isDoneStatus(statuses, newStatus);
+            const prevStatusIsDoneStatus = this.isDoneStatus(statuses, prevStatus);
+            if (newStatusIsDoneStatus && !prevStatusIsDoneStatus) {
                 doneTime = newStatusStartTime;
-            } else if (prevStatusIsFinalStatus && !newStatusIsFinalStatus) {
+            } else if (prevStatusIsDoneStatus && !newStatusIsDoneStatus) {
                 doneTime = null;
             }
 
@@ -159,7 +149,7 @@ export class Jira {
         project: string,
         from: Date,
         to: Date,
-        doneStatuses: string[],
+        statuses: Status[],
         types: string[],
         jira: JiraConfig
     ): Promise<string[]> {
@@ -173,7 +163,7 @@ export class Jira {
         );
 
         return issuesThatWereUpdatedInAnyWay
-            .map(issue => returnKeyIfCompletedDuringTheDate(issue, doneStatuses, from, to))
+            .map(issue => returnKeyIfCompletedDuringTheDate(issue, statuses, from, to))
             .filter(key => !!key)
             .sort();
     }
@@ -193,8 +183,16 @@ export class Jira {
         return true;
     }
 
-    public static getFinalStatusNames(config: ProjectConfig): string[] {
-        return config.statuses.filter(status => status.isDone).map(status => status.name);
+    public static getDoneStatuses(statuses: Status[]): Status[] {
+        return statuses.filter(status => status.isDone);
+    }
+
+    public static isDoneStatus(statuses: Status[], statusToCheck: string): Boolean {
+        const matchingStatus = Jira.getDoneStatuses(statuses).find(
+            status => status.name.toLowerCase() == statusToCheck.toLowerCase()
+        );
+
+        return matchingStatus !== undefined;
     }
 }
 

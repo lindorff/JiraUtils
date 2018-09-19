@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import { Jira } from "../lib/jira";
-import { Issue, HasChangelog, Config, Argv, Script, IssueTimings } from "../lib/interfaces";
+import { Issue, HasChangelog, Config, Argv, Script, IssueTimings, Status } from "../lib/interfaces";
 import * as fs from "fs";
 
 async function script(config: Config, argv: Argv) {
@@ -26,11 +26,10 @@ async function script(config: Config, argv: Argv) {
     const query = <string>(argv.query ? argv.query : null);
     const file = <string>(argv.file ? argv.file : null);
 
-    const statusNames: string[] = projectConfig.statuses.map(status => status.name);
-    const finalStatusNames: string[] = Jira.getFinalStatusNames(projectConfig);
+    const doneStatuses: Status[] = Jira.getDoneStatuses(projectConfig.statuses);
 
-    if (finalStatusNames.length === 0) {
-        console.error("No statuses marked as final. This is required for the script to work.");
+    if (doneStatuses.length === 0) {
+        console.error("No statuses marked as done. This is required for the script to work.");
         console.error('See readme.md and the section of "Status JSON Structure" for more info.');
         process.exit(1);
     }
@@ -68,7 +67,7 @@ async function script(config: Config, argv: Argv) {
         process.exit(0);
     }
 
-    const strings = await script.getIssueTimeStrings(issues, statusNames, finalStatusNames, showSummary());
+    const strings = await script.getIssueTimeStrings(issues, projectConfig.statuses, showSummary());
 
     if (!file) {
         strings.forEach(line => {
@@ -120,11 +119,11 @@ function issueString(showSummary: boolean, statusNames: string[]) {
 namespace script {
     export function getIssueTimeStrings<IssueWithChangelog extends Issue & HasChangelog>(
         issues: IssueWithChangelog[],
-        statusNames: string[],
-        finalStatuses: string[],
+        statuses: Status[],
         showSummary: boolean
     ): string[] {
-        const infoResults = issues.map(issue => Jira.getIssueTimings(issue, finalStatuses));
+        const statusNames: string[] = statuses.map(status => status.name);
+        const infoResults = issues.map(issue => Jira.getIssueTimings(issue, statuses));
 
         const heading = headingString(showSummary, statusNames);
         const lines = infoResults.map(issueString(showSummary, statusNames));

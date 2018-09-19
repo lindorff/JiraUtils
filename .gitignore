@@ -1,3 +1,4 @@
 node_modules/
+coverage/
 config.jira.json
 config.project.*.json

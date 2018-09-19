@@ -15,29 +15,31 @@ limitations under the License.
 */
 
 import script from "../scripts/leadtime";
+import { Status } from "../lib/interfaces";
+import { toStatus } from "./statusHelper";
 
 describe("leadtime", () => {
     describe("getIssueTimeStrings", () => {
         it("shows the appropriate headers, without summary, without statuses", () => {
-            const outputLines = script.getIssueTimeStrings([], [], [], false);
+            const outputLines = script.getIssueTimeStrings([], [], false);
             const header = outputLines[0];
             expect(header).toBe("Key,Created,Finished");
         });
 
         it("shows the appropriate headers, without summary, with statuses", () => {
-            const outputLines = script.getIssueTimeStrings([], ["foo", "bar"], [], false);
+            const outputLines = script.getIssueTimeStrings([], [toStatus("foo"), toStatus("bar")], false);
             const header = outputLines[0];
             expect(header).toBe("Key,Created,Finished,foo,bar");
         });
 
         it("shows the appropriate headers, with summary, without statuses", () => {
-            const outputLines = script.getIssueTimeStrings([], [], [], true);
+            const outputLines = script.getIssueTimeStrings([], [], true);
             const header = outputLines[0];
             expect(header).toBe("Key,Summary,Created,Finished");
         });
 
         it("shows the appropriate headers, with summary, with statuses", () => {
-            const outputLines = script.getIssueTimeStrings([], ["foo", "bar"], [], true);
+            const outputLines = script.getIssueTimeStrings([], [toStatus("foo"), toStatus("bar")], true);
             const header = outputLines[0];
             expect(header).toBe("Key,Summary,Created,Finished,foo,bar");
         });

@@ -43,7 +43,9 @@ const script: Script = async (config: Config, argv: Argv) => {
 
     const DATE_FORMAT = "yyyy-mm-dd HH:MM:ss";
 
-    const FINAL_STATUS_NAMES = Jira.getFinalStatusNames(projectConfig).map(status => `"${status.toLowerCase()}"`);
+    const DONE_STATUS_NAMES = Jira.getDoneStatuses(projectConfig.statuses).map(
+        status => `"${status.name.toLowerCase()}"`
+    );
 
     const IGNORED_STATUS_NAMES = projectConfig.scripts.storypoints.ignoreStatuses.map(status => status.toLowerCase());
 
@@ -51,14 +53,14 @@ const script: Script = async (config: Config, argv: Argv) => {
         `project = ${projectConfig.project} ` +
             `and type in (${projectConfig.scripts.storypoints.types.join(",")}) ` +
             `and "${projectConfig.scripts.storypoints.propertyName.jqlName}" > 0 ` +
-            `and status in (${FINAL_STATUS_NAMES.join(",")})`,
+            `and status in (${DONE_STATUS_NAMES.join(",")})`,
         jiraConfig
     );
 
     const issuesWithStoryPointsMap = new Map<string, Issue>();
     issuesWithStoryPoints.forEach(issue => issuesWithStoryPointsMap.set(issue.key, issue));
 
-    const issueTimings = issuesWithStoryPoints.map(issue => Jira.getIssueTimings(issue, FINAL_STATUS_NAMES));
+    const issueTimings = issuesWithStoryPoints.map(issue => Jira.getIssueTimings(issue, projectConfig.statuses));
 
     const storyPointsObj: { [storyPoints: string]: IssueTimings[] } = {};
 
