@@ -15,8 +15,6 @@ limitations under the License.
 */
 
 import { Status } from "../lib/interfaces";
-export class StatusHelper {
-    public static toStatus(statusName: string, isDone?: boolean): Status {
-        return { name: statusName, isDone: isDone };
-    }
+export function toStatus(statusName: string, isDone?: boolean): Status {
+    return { name: statusName, isDone: isDone };
 }

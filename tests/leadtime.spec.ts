@@ -16,9 +16,7 @@ limitations under the License.
 
 import script from "../scripts/leadtime";
 import { Status } from "../lib/interfaces";
-import { StatusHelper } from "./statusHelper";
-
-const toStatus = StatusHelper.toStatus;
+import { toStatus } from "./statusHelper";
 
 describe("leadtime", () => {
     describe("getIssueTimeStrings", () => {

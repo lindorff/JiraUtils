@@ -16,9 +16,7 @@ limitations under the License.
 
 import { Issue, HasChangelog, HistoryItem, ProjectConfig } from "../lib/interfaces";
 import { getIssueStatusEvents, returnKeyIfCompletedDuringTheDate, Jira } from "../lib/jira";
-import { StatusHelper } from "./statusHelper";
-
-const toStatus = StatusHelper.toStatus;
+import { toStatus } from "./statusHelper";
 
 const A_DAY_IN_MILLIS = 86400000;
 
