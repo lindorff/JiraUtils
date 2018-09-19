@@ -188,11 +188,11 @@ export class Jira {
     }
 
     public static isDoneStatus(statuses: Status[], statusToCheck: string): Boolean {
-        const matchingStatuses = Jira.getDoneStatuses(statuses).filter(
+        const matchingStatus = Jira.getDoneStatuses(statuses).find(
             status => status.name.toLowerCase() == statusToCheck.toLowerCase()
         );
 
-        return matchingStatuses.length > 0;
+        return matchingStatus !== undefined;
     }
 }
 
