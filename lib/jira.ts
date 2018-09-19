@@ -120,11 +120,11 @@ export class Jira {
             if (!timeInStatuses[prevStatus]) timeInStatuses[prevStatus] = 0;
             timeInStatuses[prevStatus] += secondsInPreviousStatus;
 
-            const newStatusIsFinalStatus = this.isDoneStatus(statuses, newStatus);
-            const prevStatusIsFinalStatus = this.isDoneStatus(statuses, prevStatus);
-            if (newStatusIsFinalStatus && !prevStatusIsFinalStatus) {
+            const newStatusIsDoneStatus = this.isDoneStatus(statuses, newStatus);
+            const prevStatusIsDoneStatus = this.isDoneStatus(statuses, prevStatus);
+            if (newStatusIsDoneStatus && !prevStatusIsDoneStatus) {
                 doneTime = newStatusStartTime;
-            } else if (prevStatusIsFinalStatus && !newStatusIsFinalStatus) {
+            } else if (prevStatusIsDoneStatus && !newStatusIsDoneStatus) {
                 doneTime = null;
             }
 
@@ -183,12 +183,12 @@ export class Jira {
         return true;
     }
 
-    public static getFinalStatuses(statuses: Status[]): Status[] {
+    public static getDoneStatuses(statuses: Status[]): Status[] {
         return statuses.filter(status => status.isDone);
     }
 
     public static isDoneStatus(statuses: Status[], statusToCheck: string): Boolean {
-        const matchingStatuses = Jira.getFinalStatuses(statuses).filter(
+        const matchingStatuses = Jira.getDoneStatuses(statuses).filter(
             status => status.name.toLowerCase() == statusToCheck.toLowerCase()
         );
 

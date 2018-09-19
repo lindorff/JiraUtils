@@ -34,7 +34,7 @@ const script: Script = async (config: Config, argv: Argv) => {
     const from: string = argv["from"];
     const to: string = argv["to"];
 
-    const doneStatusNames = Jira.getFinalStatuses(projectConfig.statuses).map(status => status.name);
+    const doneStatusNames = Jira.getDoneStatuses(projectConfig.statuses).map(status => status.name);
     console.log(
         `Finding JIRA issues that ended up and stayed in the status${
             doneStatusNames.length > 1 ? "es" : ""

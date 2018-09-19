@@ -230,32 +230,32 @@ describe("Jira", () => {
         });
     });
 
-    describe("getFinalStatuses", () => {
+    describe("getDoneStatuses", () => {
         it("should return an empty array on an empty input", () => {
-            const finalStatuses = Jira.getFinalStatuses([]);
-            expect(finalStatuses).toHaveLength(0);
+            const doneStatuses = Jira.getDoneStatuses([]);
+            expect(doneStatuses).toHaveLength(0);
         });
 
         it("should return an empty array on only-name-object input", () => {
             const statuses = [{ name: "foo" }, { name: "bar" }];
-            const finalStatuses = Jira.getFinalStatuses(statuses);
-            expect(finalStatuses).toHaveLength(0);
+            const doneStatuses = Jira.getDoneStatuses(statuses);
+            expect(doneStatuses).toHaveLength(0);
         });
 
         it("should return an empty array on object input with explicit isDone=false", () => {
             const statuses = [{ name: "foo", isDone: false }];
-            const finalStatuses = Jira.getFinalStatuses(statuses);
-            expect(finalStatuses).toHaveLength(0);
+            const doneStatuses = Jira.getDoneStatuses(statuses);
+            expect(doneStatuses).toHaveLength(0);
         });
 
         it("should return the isDone status from the mixed input", () => {
             const mixedStatuses = [{ name: "foo", isDone: false }, { name: "bar" }, { name: "baz", isDone: true }];
 
-            const finalStatuses = Jira.getFinalStatuses(mixedStatuses);
+            const doneStatuses = Jira.getDoneStatuses(mixedStatuses);
 
-            expect(finalStatuses).toHaveLength(1);
-            const finalStatusNames = finalStatuses.map(status => status.name);
-            expect(finalStatusNames).toContain("baz");
+            expect(doneStatuses).toHaveLength(1);
+            const doneStatusNames = doneStatuses.map(status => status.name);
+            expect(doneStatusNames).toContain("baz");
         });
     });
 
@@ -352,29 +352,29 @@ describe("Jira", () => {
             });
 
             it("should be found from a single finishing status change", () => {
-                const FINAL_STATUS = { name: "finish", isDone: true };
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS.name })];
+                const DONE_STATUS = { name: "finish", isDone: true };
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: DONE_STATUS.name })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
+                const timings = Jira.getIssueTimings(exampleIssue, [DONE_STATUS]);
 
                 expect(timings.finished).not.toBeNull();
                 expect(timings.finished.getFullYear()).toBe(2018);
             });
 
             it("should be the first one of many concurrent, same, finishing statuses", () => {
-                const FINAL_STATUS = { name: "finish", isDone: true };
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS.name })];
+                const DONE_STATUS = { name: "finish", isDone: true };
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: DONE_STATUS.name })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
                 exampleIssue.changelog.histories[1].items = [
                     statusHistoryItem({
-                        fromString: FINAL_STATUS.name,
-                        toString: FINAL_STATUS.name
+                        fromString: DONE_STATUS.name,
+                        toString: DONE_STATUS.name
                     })
                 ];
                 exampleIssue.changelog.histories[1].created = "2018-01-02";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
+                const timings = Jira.getIssueTimings(exampleIssue, [DONE_STATUS]);
 
                 expect(timings.finished).not.toBeNull();
                 expect(timings.finished.getFullYear()).toBe(2018);
@@ -382,20 +382,20 @@ describe("Jira", () => {
             });
 
             it("should be the first one of many concurrent, different, finishing statuses", () => {
-                const FINAL_STATUS1 = { name: "finish1", isDone: true };
-                const FINAL_STATUS2 = { name: "finish2", isDone: true };
+                const DONE_STATUS1 = { name: "finish1", isDone: true };
+                const DONE_STATUS2 = { name: "finish2", isDone: true };
 
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS1.name })];
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: DONE_STATUS1.name })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
                 exampleIssue.changelog.histories[1].items = [
                     statusHistoryItem({
-                        fromString: FINAL_STATUS1.name,
-                        toString: FINAL_STATUS2.name
+                        fromString: DONE_STATUS1.name,
+                        toString: DONE_STATUS2.name
                     })
                 ];
                 exampleIssue.changelog.histories[1].created = "2018-01-02";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS1, FINAL_STATUS2]);
+                const timings = Jira.getIssueTimings(exampleIssue, [DONE_STATUS1, DONE_STATUS2]);
 
                 expect(timings.finished).not.toBeNull();
                 expect(timings.finished.getFullYear()).toBe(2018);
@@ -403,22 +403,22 @@ describe("Jira", () => {
             });
 
             it("should be null if the issue has become un-finished", () => {
-                const FINAL_STATUS = { name: "finish", isDone: true };
-                const NOT_FINAL_STATUS = { name: "foo", isDone: false };
+                const DONE_STATUS = { name: "finish", isDone: true };
+                const NOT_DONE_STATUS = { name: "foo", isDone: false };
 
-                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: FINAL_STATUS.name })];
+                exampleIssue.changelog.histories[0].items = [statusHistoryItem({ toString: DONE_STATUS.name })];
                 exampleIssue.changelog.histories[0].created = "2018-01-01";
-                exampleIssue.changelog.histories[1].items = [statusHistoryItem({ toString: NOT_FINAL_STATUS.name })];
+                exampleIssue.changelog.histories[1].items = [statusHistoryItem({ toString: NOT_DONE_STATUS.name })];
                 exampleIssue.changelog.histories[1].created = "2018-01-02";
 
-                const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
+                const timings = Jira.getIssueTimings(exampleIssue, [DONE_STATUS]);
 
                 expect(timings.finished).toBeNull();
             });
         });
 
         it("should handle data correctly if histories are oldest-first", () => {
-            const FINAL_STATUS = { name: "finish", isDone: true };
+            const DONE_STATUS = { name: "finish", isDone: true };
             const DOING = { name: "doing", isDone: false };
             const TODO = { name: "todo", isDone: false };
 
@@ -429,22 +429,22 @@ describe("Jira", () => {
 
             exampleIssue.changelog.histories[1].created = "2018-01-02";
             exampleIssue.changelog.histories[1].items = [
-                statusHistoryItem({ from: "2", fromString: DOING.name, to: "3", toString: FINAL_STATUS.name })
+                statusHistoryItem({ from: "2", fromString: DOING.name, to: "3", toString: DONE_STATUS.name })
             ];
 
-            const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
+            const timings = Jira.getIssueTimings(exampleIssue, [DONE_STATUS]);
 
             expect(timings.times.doing).toBe(A_DAY_IN_MILLIS);
         });
 
         it("should handle data correctly if histories are newest-first", () => {
-            const FINAL_STATUS = { name: "finish", isDone: true };
+            const DONE_STATUS = { name: "finish", isDone: true };
             const DOING = { name: "doing", isDone: false };
             const TODO = { name: "todo", isDone: false };
 
             exampleIssue.changelog.histories[0].created = "2018-01-02";
             exampleIssue.changelog.histories[0].items = [
-                statusHistoryItem({ from: "2", fromString: DOING.name, to: "3", toString: FINAL_STATUS.name })
+                statusHistoryItem({ from: "2", fromString: DOING.name, to: "3", toString: DONE_STATUS.name })
             ];
 
             exampleIssue.changelog.histories[1].created = "2018-01-01";
@@ -452,7 +452,7 @@ describe("Jira", () => {
                 statusHistoryItem({ from: "1", fromString: TODO.name, to: "2", toString: DOING.name })
             ];
 
-            const timings = Jira.getIssueTimings(exampleIssue, [FINAL_STATUS]);
+            const timings = Jira.getIssueTimings(exampleIssue, [DONE_STATUS]);
 
             expect(timings.times.doing).toBe(A_DAY_IN_MILLIS);
         });

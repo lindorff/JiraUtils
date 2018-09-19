@@ -26,10 +26,10 @@ async function script(config: Config, argv: Argv) {
     const query = <string>(argv.query ? argv.query : null);
     const file = <string>(argv.file ? argv.file : null);
 
-    const finalStatuses: Status[] = Jira.getFinalStatuses(projectConfig.statuses);
+    const doneStatuses: Status[] = Jira.getDoneStatuses(projectConfig.statuses);
 
-    if (finalStatuses.length === 0) {
-        console.error("No statuses marked as final. This is required for the script to work.");
+    if (doneStatuses.length === 0) {
+        console.error("No statuses marked as done. This is required for the script to work.");
         console.error('See readme.md and the section of "Status JSON Structure" for more info.');
         process.exit(1);
     }
